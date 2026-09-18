@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+{% block title %}LuxDrive AI - {{ listing.car_name }}{% endblock %}
+{% block meta_desc %}Chi tiết xe {{ listing.car_name }} - {{ listing.year }} - {{ listing.mileage_formatted }} - Giá {{ listing.price_formatted }}đ. Đã xác thực bởi LuxDrive AI với độ tin cậy {{ listing.ai_confidence }}%.{% endblock %}
+
+{% block extra_css %}
+<style>
+.detail-page { max-width: 1300px; margin: 0 auto; padding: 24px 32px 64px; }
+
+/* Breadcrumb */
+.detail-breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--muted); margin-bottom: 20px; flex-wrap: wrap;
+}
+.detail-breadcrumb a { color: var(--primary); }
+
+/* Layout */
+.detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 28px;
+  align-items: start;
+}
+.detail-main {}
+.detail-sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 76px; }
+
+/* Gallery */
+.gallery-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+.gallery-main {
+  position: relative;
+  height: 380px;
+  background: var(--bg2);
+  overflow: hidden;
+}
+.gallery-main img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.gallery-main:hover img { transform: scale(1.02); }
+.gallery-top-badges {
+  position: absolute; top: 14px; left: 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.gallery-top-right {
+  position: absolute; top: 14px; right: 14px;
+  display: flex; gap: 8px;
+}
+.gallery-badge {
+  backdrop-filter: blur(8px);
+  font-size: 11px; font-weight: 700;
+  padding: 5px 12px; border-radius: var(--radius-full);
+}
+.badge-ai-verify { background: rgba(79,70,229,0.85); color: white; }
+.badge-photo-count { background: rgba(0,0,0,0.55); color: white; display: flex; align-items: center; gap: 4px; }
+.gallery-thumbs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: 4px;
+}
+.gallery-thumbs img {
+  width: 100%; height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+.gallery-thumbs img.active,
+.gallery-thumbs img:hover { border-color: var(--primary); }
+
+/* Car Title + Meta */
+.car-header { margin-bottom: 20px; }
+.car-header h1 { font-size: 1.6rem; font-weight: 800; color: var(--text); margin-bottom: 10px; letter-spacing: -0.02em; line-height: 1.3; }
+.car-meta-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.meta-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text-secondary); font-size: 12px; font-weight: 500;
+  padding: 5px 12px; border-radius: var(--radius-full);
+}
+.meta-tag svg { color: var(--primary); flex-shrink: 0; }
+
+/* AI Insight Box */
+.ai-insight-box {
+  background: linear-gradient(135deg, var(--primary-light) 0%, #f5f3ff 100%);
+  border: 1px solid var(--primary-mid);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+.ai-box-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 800; color: var(--primary);
+  margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.ai-rows { display: flex; flex-direction: column; gap: 12px; }
+.ai-row { display: flex; justify-content: space-between; align-items: center; }
+.ai-row-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+.ai-row-val { font-size: 14px; font-weight: 700; }
+.ai-row-val.positive { color: var(--success); }
+.ai-row-val.negative { color: var(--danger); }
+.ai-conf-row { margin-top: 6px; }
+.conf-track { flex: 1; height: 6px; background: var(--primary-mid); border-radius: 100px; overflow: hidden; margin: 0 10px; }
+.conf-fill  { height: 100%; background: var(--gradient-primary); border-radius: 100px; }
+
+/* Section Cards */
+.detail-section-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-xs);
+}
+.section-card-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 700; color: var(--text);
+  margin-bottom: 18px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-card-title svg { color: var(--primary); }
+
+/* Features */
+.features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.feature-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text-secondary); font-weight: 500;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+.feature-item svg { color: var(--success); flex-shrink: 0; }
+
+/* Specs Table */
+.specs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.specs-table tr:nth-child(even) td { background: var(--bg); }
+.specs-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); }
+.specs-table td:first-child { color: var(--muted); font-weight: 500; width: 45%; }
+.specs-table td:last-child  { color: var(--text); font-weight: 600; }
+.specs-table td:last-child.highlight { color: var(--primary); }
+
+/* Sidebar Cards */
+.sidebar-price-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.sidebar-price-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.sidebar-price-val { font-size: 2rem; font-weight: 900; color: var(--primary); margin-bottom: 6px; }
+.sidebar-price-diff {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 700;
+  padding: 4px 10px; border-radius: var(--radius-full);
+  margin-bottom: 20px;
+}
+.sidebar-price-diff.good { background: var(--success-light); color: var(--success-dark); }
+.sidebar-price-diff.bad  { background: var(--danger-light); color: var(--danger); }
+
+/* Action Buttons */
+.action-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.btn-call {
+  width: 100%; padding: 13px; border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 700;
+  background: var(--gradient-primary); color: white; border: none;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.2s; box-shadow: var(--shadow-primary);
+}
+.btn-call:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79,70,229,0.4); }
+.btn-secondary-action {
+  width: 100%; padding: 11px; border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 600;
+  background: var(--card); color: var(--text);
+  border: 1.5px solid var(--border); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.15s;
+}
+.btn-secondary-action:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Dealer Card */
+.dealer-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px; box-shadow: var(--shadow-xs);
+}
+.dealer-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.dealer-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--primary-light); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: var(--primary);
+  border: 2px solid var(--primary-mid); flex-shrink: 0;
+}
+.dealer-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.dealer-rating { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--warning); }
+.dealer-rating span { color: var(--muted); }
+.dealer-info-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--muted); margin-bottom: 8px;
+}
+.dealer-info-row svg { color: var(--primary); flex-shrink: 0; }
+
+/* Compare Banner */
+.compare-cta-sidebar {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+.compare-cta-sidebar p { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.btn-compare-add {
+  width: 100%; padding: 10px; border-radius: var(--radius-sm);
+  background: var(--primary-light); color: var(--primary);
+  border: 1.5px solid var(--primary-mid);
+  font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn-compare-add:hover { background: var(--primary); color: white; }
+
+/* Similar Cars */
+.similar-section { margin-top: 40px; }
+.similar-section h2 { font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 20px; }
+.similar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.sim-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; transition: all 0.2s; box-shadow: var(--shadow-xs);
+}
+.sim-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary-mid); }
+.sim-card img { width: 100%; height: 140px; object-fit: cover; }
+.sim-card-body { padding: 14px; }
+.sim-card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.sim-card-price { font-size: 14px; font-weight: 800; color: var(--primary); }
+.sim-card-meta  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+@media (max-width: 1024px) {
+  .detail-layout { grid-template-columns: 1fr; }
+  .detail-sidebar { position: static; }
+  .similar-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .similar-grid { grid-template-columns: 1fr; }
+  .gallery-thumbs { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+
+  <!-- Breadcrumb -->
+  <div class="detail-breadcrumb">
+    <a href="{{ url_for('main.index') }}">Trang chủ</a>
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    <a href="{{ url_for('listing.car_listings') }}">Sàn giao dịch</a>
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    <span>{{ listing.car_name }}</span>
+  </div>
+
+  <div class="detail-layout">
+
+    <!-- LEFT: Main Content -->
+    <div class="detail-main">
+
+      <!-- Gallery -->
+      <div class="gallery-card">
+        <div class="gallery-main">
+          <img src="{{ listing.images[0] }}" alt="{{ listing.car_name }}" id="mainImg">
+          <div class="gallery-top-badges">
+            <span class="gallery-badge badge-ai-verify">✓ AI Verified</span>
+          </div>
+          <div class="gallery-top-right">
+            <span class="gallery-badge badge-photo-count">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              {{ listing.images|length }} ảnh
+            </span>
+          </div>
+        </div>
+        <div class="gallery-thumbs">
+          {% for img in listing.images %}
+          <img src="{{ img }}" alt="thumb {{ loop.index }}" class="{% if loop.first %}active{% endif %}" onclick="switchImg(this, '{{ img }}')">
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Car Header -->
+      <div class="car-header">
+        <h1>{{ listing.car_name }}</h1>
+        <div class="car-meta-tags">
+          <span class="meta-tag">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Năm {{ listing.year }}
+          </span>
+          <span class="meta-tag">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {{ listing.mileage_formatted }}
+          </span>
+          <span class="meta-tag">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 22v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8"/><path d="M12 12v-6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v6"/></svg>
+            {{ listing.fuel }}
+          </span>
+          <span class="meta-tag">🚪 {{ listing.doors }} cửa</span>
+          <span class="meta-tag">🎨 {{ listing.color }}</span>
+          <span class="meta-tag">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {{ listing.dealer.address.split(',')[-1]|default('Hà Nội') | trim }}
+          </span>
+        </div>
+      </div>
+
+      <!-- AI Insight Box -->
+      <div class="ai-insight-box">
+        <div class="ai-box-header">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          LuxDrive AI Insights — Neural v4.8
+        </div>
+        <div class="ai-rows">
+          <div class="ai-row">
+            <span class="ai-row-label">Định giá AI ước tính</span>
+            <span class="ai-row-val">{{ listing.ai_price_billion }}</span>
+          </div>
+          <div class="ai-row">
+            <span class="ai-row-label">So với giá niêm yết</span>
+            <span class="ai-row-val {{ 'positive' if listing.price_diff_positive else 'negative' }}">
+              {{ '▲' if listing.price_diff_positive else '▼' }} {{ listing.price_diff_pct }}
+            </span>
+          </div>
+          <div class="ai-row ai-conf-row">
+            <span class="ai-row-label">Độ tin cậy mô hình</span>
+            <div class="conf-track"><div class="conf-fill" style="width:{{ listing.ai_confidence }}%"></div></div>
+            <span class="ai-row-val">{{ listing.ai_confidence }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="detail-section-card">
+        <div class="section-card-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Trang bị nổi bật
+        </div>
+        <div class="features-grid">
+          {% for f in listing.features %}
+          <div class="feature-item">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            {{ f }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Specs -->
+      <div class="detail-section-card">
+        <div class="section-card-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Thông số kỹ thuật
+        </div>
+        <table class="specs-table">
+          <tr><td>Hãng xe</td><td class="highlight">{{ listing.car_name.split(' ')[0] }}</td></tr>
+          <tr><td>Năm sản xuất</td><td>{{ listing.year }}</td></tr>
+          <tr><td>Số km đã chạy</td><td>{{ listing.mileage_formatted }}</td></tr>
+          <tr><td>Nhiên liệu</td><td>{{ listing.fuel }}</td></tr>
+          <tr><td>Hộp số</td><td>Tự động ({{ listing.doors }}-cấp)</td></tr>
+          <tr><td>Màu sắc</td><td>{{ listing.color }}</td></tr>
+          <tr><td>Số cửa</td><td>{{ listing.doors }} cửa</td></tr>
+          <tr><td>Khu vực đăng ký</td><td>{{ listing.dealer.address }}</td></tr>
+        </table>
+      </div>
+
+      <!-- Description -->
+      <div class="detail-section-card">
+        <div class="section-card-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+          Mô tả chi tiết từ người bán
+        </div>
+        <p style="font-size:14px;color:var(--text-secondary);line-height:1.75">{{ listing.description }}</p>
+      </div>
+
+      <!-- Similar Cars -->
+      {% if similar_listings %}
+      <div class="similar-section">
+        <h2>Xe tương tự cùng phân khúc</h2>
+        <div class="similar-grid">
+          {% for sim in similar_listings[:3] %}
+          <a href="{{ url_for('detail.car_detail', listing_id=sim.id) }}" style="text-decoration:none">
+            <div class="sim-card">
+              <img src="{{ sim.primary_image }}" alt="{{ sim.full_name }}" onerror="this.onerror=null;this.style.height='140px';this.style.background='var(--bg2)'">
+              <div class="sim-card-body">
+                <div class="sim-card-title">{{ sim.full_name }}</div>
+                <div class="sim-card-price">{{ sim.price_formatted }} đ</div>
+                <div class="sim-card-meta">{{ sim.year }} • {{ sim.mileage_formatted }}</div>
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- RIGHT: Sidebar -->
+    <div class="detail-sidebar">
+
+      <!-- Price Card -->
+      <div class="sidebar-price-card">
+        <div class="sidebar-price-label">GIÁ NIÊM YẾT</div>
+        <div class="sidebar-price-val">{{ listing.price_formatted }}đ</div>
+        <div class="sidebar-price-diff {{ 'good' if listing.price_diff_positive else 'bad' }}">
+          {{ '▲ Trên' if listing.price_diff_positive else '▼ Dưới' }} giá AI {{ listing.price_diff_pct }}
+        </div>
+
+        <div class="action-btns">
+          <button class="btn-call">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Gọi người bán ngay
+          </button>
+          <button class="btn-secondary-action">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            Lưu tin đăng
+          </button>
+          <button class="btn-secondary-action">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Chia sẻ xe này
+          </button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:16px;border-top:1px solid var(--border)">
+          <div style="text-align:center;background:var(--bg);border-radius:var(--radius-sm);padding:10px 6px">
+            <div style="font-size:1rem;font-weight:800;color:var(--success)">{{ listing.ai_confidence }}%</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:600">Độ tin AI</div>
+          </div>
+          <div style="text-align:center;background:var(--bg);border-radius:var(--radius-sm);padding:10px 6px">
+            <div style="font-size:1rem;font-weight:800;color:var(--text)">14 ngày</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:600">Thanh khoản</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dealer Card -->
+      <div class="dealer-card">
+        <div class="section-card-title" style="padding-bottom:14px;margin-bottom:16px">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          Thông tin người bán
+        </div>
+        <div class="dealer-header">
+          <div class="dealer-avatar">{{ listing.dealer.name[0]|upper }}</div>
+          <div>
+            <div class="dealer-name">{{ listing.dealer.name }}</div>
+            <div class="dealer-rating">
+              ★★★★★ {{ listing.dealer.rating }}
+              <span>({{ listing.dealer.reviews }} đánh giá)</span>
+            </div>
+          </div>
+        </div>
+        <div class="dealer-info-row">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {{ listing.dealer.address }}
+        </div>
+        <div class="dealer-info-row">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          {{ listing.dealer.phone }}
+        </div>
+      </div>
+
+      <!-- Compare CTA -->
+      <div class="compare-cta-sidebar">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">So sánh với xe khác</div>
+        <p>Phân tích chi tiết giá trị, hiệu suất và chi phí sở hữu với AI Comparison Engine.</p>
+        <button class="btn-compare-add" onclick="location.href='{{ url_for('compare.compare') }}?add={{ listing.id }}'">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Thêm vào trang So sánh
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchImg(el, src) {
+  document.getElementById('mainImg').src = src;
+  document.querySelectorAll('.gallery-thumbs img').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+{% endblock %}

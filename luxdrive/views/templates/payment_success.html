@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}LuxDrive AI - Thanh toán thành công{% endblock %}
+{% block content %}
+<div style="max-width:520px;margin:60px auto;padding:0 20px;text-align:center">
+  <div style="background:var(--card);border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:48px 40px">
+    <div style="width:72px;height:72px;background:rgba(16,185,129,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px">✅</div>
+    <h1 style="font-size:26px;font-weight:800;color:var(--white);margin-bottom:8px">Thanh toán thành công!</h1>
+    <p style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:28px">Giao dịch của bạn đã được xử lý thành công. Người bán sẽ liên hệ trong vòng 24 giờ.</p>
+    <div style="background:var(--card2);border-radius:12px;padding:20px;text-align:left;margin-bottom:28px">
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid var(--border)">
+        <span style="color:var(--muted)">Mã giao dịch</span>
+        <span style="font-weight:700;color:var(--white);font-family:monospace">{{ txn.txn_ref }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid var(--border)">
+        <span style="color:var(--muted)">Số tiền</span>
+        <span style="font-weight:700;color:var(--white)">{{ txn.amount_formatted }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid var(--border)">
+        <span style="color:var(--muted)">Phí dịch vụ</span>
+        <span style="font-weight:700;color:var(--white)">{{ txn.fee_formatted }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px">
+        <span style="color:var(--muted)">Phương thức</span>
+        <span style="font-weight:700;color:var(--green);text-transform:uppercase">{{ txn.method }}</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px">
+      <a href="{{ url_for('main.index') }}" class="btn-outline" style="flex:1;text-align:center;text-decoration:none;padding:11px">Về trang chủ</a>
+      <a href="{{ url_for('profile.profile') }}" class="btn-primary" style="flex:1;text-align:center;text-decoration:none;padding:11px">Quản lý xe</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

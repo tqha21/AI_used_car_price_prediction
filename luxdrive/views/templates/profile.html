@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+{% block title %}LuxDrive AI - Hồ Sơ Cá Nhân{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─── PROFILE PAGE ───────────────────────────────────────── */
+.profile-page { max-width: 1100px; margin: 0 auto; padding: 28px 32px 64px; }
+
+/* Layout */
+.profile-layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start; }
+.profile-sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 76px; }
+
+/* Sidebar Card */
+.profile-sidebar-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 28px 20px; box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+.profile-avatar-wrap { position: relative; display: inline-block; margin-bottom: 16px; }
+.profile-avatar {
+  width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
+  border: 3px solid var(--primary-mid); box-shadow: 0 0 0 4px var(--primary-light);
+}
+.avatar-edit-btn {
+  position: absolute; bottom: 0; right: 0;
+  width: 28px; height: 28px; background: var(--primary); color: white;
+  border-radius: 50%; border: 2px solid var(--card);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 12px; transition: all 0.2s;
+}
+.avatar-edit-btn:hover { transform: scale(1.1); }
+.profile-name { font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.profile-email { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.profile-role-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--primary-light); color: var(--primary);
+  font-size: 11px; font-weight: 700;
+  padding: 4px 10px; border-radius: var(--radius-full);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.profile-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+/* Sidebar nav */
+.profile-nav { display: flex; flex-direction: column; gap: 2px; list-style: none; }
+.profile-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; color: var(--muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.profile-nav-item:hover { background: var(--bg2); color: var(--text); }
+.profile-nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+.profile-nav-item svg { flex-shrink: 0; }
+/* Mini stats */
+.profile-mini-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pms { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 8px; text-align: center; }
+.pms-val { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+.pms-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+/* Main Content */
+.profile-main { display: flex; flex-direction: column; gap: 20px; }
+.profile-section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 28px 32px; box-shadow: var(--shadow-sm);
+}
+.profile-section-title {
+  font-size: 15px; font-weight: 800; color: var(--text);
+  margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.profile-section-title svg { color: var(--primary); }
+
+/* Form Grid */
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.pf-group { }
+.pf-group label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+.pf-input {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; font-family: var(--font);
+  background: var(--card); color: var(--text); outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pf-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+.pf-input[readonly] { background: var(--bg); color: var(--muted); cursor: default; }
+
+/* AI Score Card */
+.ai-score-card {
+  background: var(--gradient-primary); color: white;
+  border-radius: var(--radius-xl); padding: 28px 32px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;
+  box-shadow: 0 10px 30px rgba(79,70,229,0.2);
+}
+.ai-score-item { text-align: center; }
+.ai-score-val   { font-size: 2rem; font-weight: 900; margin-bottom: 4px; }
+.ai-score-label { font-size: 12px; opacity: 0.8; font-weight: 500; }
+
+/* Listings Grid */
+.my-listings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.my-listing-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px; transition: all 0.2s;
+}
+.my-listing-card:hover { border-color: var(--primary-mid); background: var(--primary-light); }
+.my-listing-card img { width: 70px; height: 52px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; }
+.mlc-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.mlc-price { font-size: 13px; font-weight: 800; color: var(--primary); }
+.mlc-meta  { font-size: 11px; color: var(--muted); }
+.mlc-status { margin-left: auto; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: var(--radius-full); flex-shrink: 0; }
+.mlc-status.active  { background: var(--success-light); color: var(--success-dark); }
+.mlc-status.pending { background: var(--warning-light); color: #92400e; }
+.mlc-status.sold    { background: var(--bg2); color: var(--muted); }
+
+/* Notification preferences */
+.notif-prefs { display: flex; flex-direction: column; gap: 14px; }
+.notif-pref {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 16px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.notif-pref-text b { font-size: 13px; font-weight: 700; color: var(--text); display: block; margin-bottom: 3px; }
+.notif-pref-text p { font-size: 12px; color: var(--muted); }
+/* Toggle switch */
+.toggle-wrap { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle-wrap input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--border); border-radius: 24px; cursor: pointer; transition: 0.2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 18px; height: 18px; bottom: 3px; left: 3px;
+  background: white; border-radius: 50%; transition: 0.2s; box-shadow: var(--shadow-sm);
+}
+.toggle-wrap input:checked + .toggle-slider { background: var(--primary); }
+.toggle-wrap input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+/* Password section */
+.password-form { display: flex; flex-direction: column; gap: 14px; max-width: 480px; }
+
+/* Save Button */
+.btn-save-profile {
+  padding: 11px 28px; border-radius: var(--radius-md);
+  font-size: 14px; font-weight: 700;
+  background: var(--gradient-primary); color: white; border: none;
+  cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-primary);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-save-profile:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+
+@media (max-width: 1024px) { .profile-layout { grid-template-columns: 1fr; } .profile-sidebar { position: static; } }
+@media (max-width: 640px) { .form-grid-2, .form-grid-3, .my-listings-grid, .ai-score-card { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+  <div class="profile-layout">
+
+    <!-- Sidebar -->
+    <div class="profile-sidebar">
+      <div class="profile-sidebar-card">
+        <div class="profile-avatar-wrap">
+          <img src="{{ current_user.avatar_url }}" alt="{{ current_user.full_name }}" class="profile-avatar">
+          <button class="avatar-edit-btn" title="Đổi ảnh đại diện">
+            <svg width="12" height="12" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+        </div>
+        <div class="profile-name">{{ current_user.full_name }}</div>
+        <div class="profile-email">{{ current_user.email }}</div>
+        <span class="profile-role-badge">
+          {{ '👑 Admin' if current_user.role == 'admin' else ('🏪 Người bán' if current_user.role == 'seller' else '👤 Người dùng') }}
+        </span>
+        <hr class="profile-divider">
+        <div class="profile-mini-stats">
+          <div class="pms"><div class="pms-val">{{ valuations_count|default(0) }}</div><div class="pms-label">Định giá đã thực hiện</div></div>
+          <div class="pms"><div class="pms-val">{{ listings_count|default(0) }}</div><div class="pms-label">Tin đăng bán xe</div></div>
+          <div class="pms"><div class="pms-val">{{ saved_count|default(0) }}</div><div class="pms-label">Xe đã lưu</div></div>
+          <div class="pms"><div class="pms-val">{{ comparisons_count|default(0) }}</div><div class="pms-label">Lượt so sánh</div></div>
+        </div>
+        <hr class="profile-divider">
+        <ul class="profile-nav">
+          <li class="profile-nav-item active" onclick="showTab('info')">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Thông tin cá nhân
+          </li>
+          <li class="profile-nav-item" onclick="showTab('listings')">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Tin đăng của tôi
+          </li>
+          <li class="profile-nav-item" onclick="showTab('notifications')">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Tùy chọn thông báo
+          </li>
+          <li class="profile-nav-item" onclick="showTab('security')">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Bảo mật & mật khẩu
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="profile-main">
+
+      <!-- AI Score Card -->
+      <div class="ai-score-card">
+        <div class="ai-score-item">
+          <div class="ai-score-val">98.6<span style="font-size:1rem">%</span></div>
+          <div class="ai-score-label">Độ chính xác AI bạn sử dụng</div>
+        </div>
+        <div class="ai-score-item">
+          <div class="ai-score-val">{{ valuations_count|default(0) }}</div>
+          <div class="ai-score-label">Lượt định giá thực hiện</div>
+        </div>
+        <div class="ai-score-item">
+          <div class="ai-score-val">{{ savings|default('0') }}</div>
+          <div class="ai-score-label">Tiết kiệm được khi mua xe</div>
+        </div>
+      </div>
+
+      <!-- TAB: Thông tin cá nhân -->
+      <div id="tab-info" class="profile-section">
+        <div class="profile-section-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Thông tin cá nhân
+        </div>
+        <form method="POST" action="{{ url_for('profile.update_profile') }}">
+          <div class="form-grid-2" style="margin-bottom:16px">
+            <div class="pf-group">
+              <label>Họ và tên</label>
+              <input class="pf-input" type="text" name="full_name" value="{{ current_user.full_name }}">
+            </div>
+            <div class="pf-group">
+              <label>Email</label>
+              <input class="pf-input" type="email" value="{{ current_user.email }}" readonly>
+            </div>
+            <div class="pf-group">
+              <label>Số điện thoại</label>
+              <input class="pf-input" type="tel" name="phone" value="{{ current_user.phone|default('') }}" placeholder="0912 345 678">
+            </div>
+            <div class="pf-group">
+              <label>Giới tính</label>
+              <select class="pf-input" name="gender">
+                <option value="male" {{ 'selected' if current_user.gender=='male' }}>Nam</option>
+                <option value="female" {{ 'selected' if current_user.gender=='female' }}>Nữ</option>
+                <option value="other" {{ 'selected' if current_user.gender=='other' }}>Khác</option>
+              </select>
+            </div>
+            <div class="pf-group">
+              <label>Ngày sinh</label>
+              <input class="pf-input" type="date" name="dob" value="{{ current_user.dob|default('') }}">
+            </div>
+            <div class="pf-group">
+              <label>Thành phố</label>
+              <select class="pf-input" name="city">
+                <option>Hà Nội</option><option>TP. Hồ Chí Minh</option>
+                <option>Đà Nẵng</option><option>Tỉnh khác</option>
+              </select>
+            </div>
+          </div>
+          <div class="pf-group" style="margin-bottom:20px">
+            <label>Địa chỉ chi tiết</label>
+            <input class="pf-input" type="text" name="address" value="{{ current_user.address|default('') }}" placeholder="Số nhà, đường, quận/huyện...">
+          </div>
+          <button type="submit" class="btn-save-profile">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Lưu thay đổi
+          </button>
+        </form>
+      </div>
+
+      <!-- TAB: Tin đăng -->
+      <div id="tab-listings" class="profile-section" style="display:none">
+        <div class="profile-section-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Tin đăng của tôi
+        </div>
+        {% if my_listings %}
+        <div class="my-listings-grid">
+          {% for lst in my_listings %}
+          <div class="my-listing-card">
+            <img src="{{ lst.primary_image }}" alt="{{ lst.full_name }}" onerror="this.style.display='none'">
+            <div style="flex:1;min-width:0">
+              <div class="mlc-title">{{ lst.full_name }}</div>
+              <div class="mlc-price">{{ lst.price_formatted }}đ</div>
+              <div class="mlc-meta">{{ lst.year }} • {{ lst.mileage_formatted }}</div>
+            </div>
+            <span class="mlc-status {{ 'active' if lst.is_active else 'pending' }}">
+              {{ 'Đang hiện' if lst.is_active else 'Chờ duyệt' }}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:40px;color:var(--muted)">
+          <div style="font-size:40px;margin-bottom:12px">🚗</div>
+          <div style="font-weight:700;color:var(--text);margin-bottom:8px">Chưa có tin đăng nào</div>
+          <div style="font-size:14px;margin-bottom:16px">Đăng tin bán xe để tiếp cận hàng nghìn người mua tiềm năng.</div>
+          <a href="{{ url_for('sell.sell') }}" class="btn-save-profile" style="text-decoration:none;display:inline-flex">Đăng bán xe ngay</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- TAB: Thông báo -->
+      <div id="tab-notifications" class="profile-section" style="display:none">
+        <div class="profile-section-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Tùy chọn thông báo
+        </div>
+        <div class="notif-prefs">
+          <div class="notif-pref">
+            <div class="notif-pref-text"><b>Biến động giá xe yêu thích</b><p>Nhận thông báo khi giá xe bạn đã lưu thay đổi trên ±5%</p></div>
+            <label class="toggle-wrap"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="notif-pref">
+            <div class="notif-pref-text"><b>Xe mới phù hợp với tìm kiếm</b><p>AI gợi ý xe mới phù hợp với bộ lọc đã lưu của bạn</p></div>
+            <label class="toggle-wrap"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="notif-pref">
+            <div class="notif-pref-text"><b>Báo cáo thị trường hàng tuần</b><p>Tóm tắt xu hướng thị trường xe cũ gửi vào sáng thứ Hai</p></div>
+            <label class="toggle-wrap"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="notif-pref">
+            <div class="notif-pref-text"><b>Hỏi mua tin đăng của tôi</b><p>Người mua liên hệ hoặc hỏi về xe bạn đăng bán</p></div>
+            <label class="toggle-wrap"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="notif-pref">
+            <div class="notif-pref-text"><b>Email cập nhật chính sách</b><p>Thông báo thay đổi điều khoản, bảo mật và tính năng mới</p></div>
+            <label class="toggle-wrap"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <button class="btn-save-profile">Lưu cài đặt thông báo</button>
+        </div>
+      </div>
+
+      <!-- TAB: Bảo mật -->
+      <div id="tab-security" class="profile-section" style="display:none">
+        <div class="profile-section-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Đổi mật khẩu
+        </div>
+        <form method="POST" action="{{ url_for('profile.change_password') }}" class="password-form">
+          <div class="pf-group">
+            <label>Mật khẩu hiện tại</label>
+            <input type="password" name="current_password" class="pf-input" placeholder="••••••••" required>
+          </div>
+          <div class="pf-group">
+            <label>Mật khẩu mới</label>
+            <input type="password" name="new_password" class="pf-input" placeholder="Ít nhất 8 ký tự" required minlength="8">
+          </div>
+          <div class="pf-group">
+            <label>Xác nhận mật khẩu mới</label>
+            <input type="password" name="confirm_password" class="pf-input" placeholder="••••••••" required>
+          </div>
+          <div>
+            <button type="submit" class="btn-save-profile">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Cập nhật mật khẩu
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTab(tabName) {
+  ['info','listings','notifications','security'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === tabName ? 'block' : 'none';
+  });
+  document.querySelectorAll('.profile-nav-item').forEach((el, i) => {
+    const tabs = ['info','listings','notifications','security'];
+    el.classList.toggle('active', tabs[i] === tabName);
+  });
+}
+</script>
+{% endblock %}

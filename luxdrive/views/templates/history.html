@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}LuxDrive AI - Lịch sử & Báo cáo{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Lịch sử <span class="gradient-text">Định giá</span></h1>
+    <p>Quản lý và theo dõi các báo cáo định giá xe hơi cao cấp gần đây của bạn.</p>
+  </div>
+</div>
+
+<div class="history-container">
+  <div class="table-toolbar">
+    <form id="searchForm" onsubmit="event.preventDefault(); loadHistory();">
+      <div class="search-input-wrap">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" name="q" value="{{ search }}" placeholder="Tìm kiếm tên xe..." oninput="debounceLoadHistory()">
+      </div>
+    </form>
+    <button class="btn-outline" style="display:flex;align-items:center;gap:6px;font-size:13px">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
+      LỌC DỮ LIỆU
+    </button>
+  </div>
+
+  <div class="table-card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>TÊN XE</th>
+          <th>NGÀY ĐỊNH GIÁ</th>
+          <th>GIÁ ƯỚC TÍNH</th>
+          <th>TRẠNG THÁI</th>
+          <th>HÀNH ĐỘNG</th>
+        </tr>
+      </thead>
+      <tbody id="historyTableBody">
+        <!-- Render from JS -->
+        {% if history %}
+          {% for item in history %}
+          {% set diff = ((item.price - item.ai_price) / item.ai_price * 100)|round(1) if item.ai_price else 0 %}
+          {% set change_type = 'up' if diff > 0 else ('down' if diff < 0 else 'flat') %}
+          {% set change_str = ("+" ~ diff ~ "%") if diff > 0 else (diff ~ "%" if diff < 0 else "Ổn định") %}
+          <tr>
+            <td>
+              <div class="car-cell">
+                <img src="{{ item.primary_image }}" alt="{{ item.full_name }}" class="car-thumb">
+                <div>
+                  <a href="{{ url_for('detail.car_detail', listing_id=item.id) }}" class="car-name" style="text-decoration:none">{{ item.full_name }}</a>
+                  <p class="car-sub">{{ item.year }} · {{ item.transmission }} · {{ item.fuel_type }}</p>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--muted);font-size:14px">{{ item.created_at.strftime('%d/%m/%Y') }}</td>
+            <td>
+              <div class="price-cell">
+                <p class="main-price">{{ item.price_formatted }}</p>
+                <p class="price-change {{ change_type }}">
+                  {% if change_type == 'up' %}▲{% elif change_type == 'down' %}▼{% else %}—{% endif %}
+                  {{ change_str }}
+                </p>
+              </div>
+            </td>
+            <td><span class="status-badge {{ item.status }}">{{ item.status_label }}</span></td>
+            <td>
+              <button class="download-btn" title="Tải xuống">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="5" style="text-align:center;padding:48px;color:var(--muted)">Chưa có lịch sử định giá.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+    <div class="table-footer">
+      <p id="tableFooterText">Hiển thị {{ history|length }} trong số {{ total }} kết quả</p>
+      <div class="pagination">
+        <button class="page-btn">‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">›</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let typingTimer;
+const doneTypingInterval = 500;
+
+function debounceLoadHistory() {
+  clearTimeout(typingTimer);
+  const tbody = document.getElementById('historyTableBody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:48px;"><div class="spinner"></div> Đang tải...</td></tr>';
+  typingTimer = setTimeout(loadHistory, doneTypingInterval);
+}
+
+async function loadHistory() {
+  const query = document.getElementById('searchInput').value;
+  try {
+    const res = await fetch(`/lich-su?q=${encodeURIComponent(query)}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const { data, total } = await res.json();
+    renderTable(data, total, query);
+  } catch (error) {
+    console.error("Lỗi khi tải dữ liệu lịch sử", error);
+  }
+}
+
+function renderTable(data, total, query) {
+  const tbody = document.getElementById('historyTableBody');
+  document.getElementById('tableFooterText').textContent = `Hiển thị ${data.length} trong số ${total} kết quả`;
+  
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:48px;color:var(--muted)">Không tìm thấy kết quả cho "${query}"</td></tr>`;
+    return;
+  }
+  
+  let html = '';
+  data.forEach(item => {
+    let arrow = item.change_type === 'up' ? '▲' : (item.change_type === 'down' ? '▼' : '—');
+    html += `
+      <tr class="fade-in">
+        <td>
+          <div class="car-cell">
+            <img src="${item.image}" alt="${item.name}" class="car-thumb">
+            <div>
+              <a href="/xe/${item.id}" class="car-name" style="text-decoration:none">${item.name}</a>
+              <p class="car-sub">${item.sub}</p>
+            </div>
+          </div>
+        </td>
+        <td style="color:var(--muted);font-size:14px">${item.date}</td>
+        <td>
+          <div class="price-cell">
+            <p class="main-price">${item.price}</p>
+            <p class="price-change ${item.change_type}">
+              ${arrow} ${item.change}
+            </p>
+          </div>
+        </td>
+        <td><span class="status-badge ${item.status}">${item.status_label}</span></td>
+        <td>
+          <button class="download-btn" title="Tải xuống">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+}
+</script>
+<style>
+.spinner {
+  width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+{% endblock %}

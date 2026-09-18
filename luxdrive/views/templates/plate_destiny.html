@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}LuxDrive AI - Tra Cứu Định Mệnh Biển Số Xe{% endblock %}
+{% block meta_desc %}Xem bói biển số xe theo phong thủy. Tính số nút, ngũ hành, sinh khắc với chủ xe và ý nghĩa các con số mang lại tài lộc hay rủi ro.{% endblock %}
+
+{% block extra_css %}
+<style>
+.destiny-page { max-width: 1100px; margin: 0 auto; padding: 28px 32px 64px; }
+
+.destiny-hero { text-align: center; padding: 40px 20px 32px; max-width: 720px; margin: 0 auto; }
+.destiny-hero h1 { font-size: 2.2rem; font-weight: 800; color: var(--text); margin-bottom: 12px; }
+.destiny-hero p  { font-size: 15px; color: var(--muted); line-height: 1.6; max-width: 580px; margin: 0 auto; }
+
+.destiny-search-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 36px 40px;
+  max-width: 760px; margin: 0 auto 40px; box-shadow: var(--shadow-md);
+}
+.search-row { display: flex; gap: 16px; margin-bottom: 16px; }
+.plate-input {
+  flex: 1; padding: 18px 24px; font-size: 1.5rem; font-weight: 800;
+  letter-spacing: 0.15em; text-transform: uppercase; text-align: center;
+  border: 2px solid var(--border); border-radius: var(--radius-md);
+  background: var(--bg); color: var(--text); outline: none; transition: all 0.2s; font-family: var(--font);
+}
+.plate-input:focus { border-color: #8b5cf6; background: var(--card); box-shadow: 0 0 0 4px rgba(139,92,246,0.15); }
+.destiny-btn {
+  padding: 0 40px; border-radius: var(--radius-md);
+  font-size: 16px; font-weight: 800;
+  background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%); color: white; border: none;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 20px rgba(139,92,246,0.25); white-space: nowrap;
+}
+.destiny-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139,92,246,0.4); }
+
+.destiny-result {
+  max-width: 860px; margin: 0 auto 40px; display: none; animation: fadeInUp 0.4s ease;
+}
+.plate-display-wrap { text-align: center; margin-bottom: 32px; }
+.plate-display {
+  display: inline-block; font-size: 2.5rem; font-weight: 900; color: #1e1b4b;
+  letter-spacing: 0.15em; font-family: monospace;
+  background: #fef08a; padding: 12px 32px; border-radius: var(--radius-md);
+  border: 4px solid #a16207; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.fs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.fs-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 32px;
+  text-align: center; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+}
+.fs-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:4px; }
+.fs-card.nut::before { background: var(--gradient-primary); }
+.fs-card.element::before { background: linear-gradient(135deg, #10b981, #059669); }
+.fs-label { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+.fs-val { font-size: 2.5rem; font-weight: 900; margin-bottom: 16px; }
+.fs-card.nut .fs-val { color: var(--primary); }
+.fs-card.element .fs-val { color: #10b981; }
+.fs-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+@media (max-width: 768px) {
+  .search-row { flex-direction: column; }
+  .fs-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="destiny-page">
+  <div class="destiny-hero">
+    <div class="ai-powered-badge" style="margin-bottom:16px;justify-content:center;background:rgba(139,92,246,0.1);color:#8b5cf6">
+      🔮 PHONG THỦY HỌC & AI
+    </div>
+    <h1>Định Mệnh <span style="background:linear-gradient(135deg, #8b5cf6, #d946ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Biển Số Xe</span></h1>
+    <p>Khám phá ý nghĩa phong thủy, tính số nút và bản mệnh (ngũ hành) của biển số để xem mức độ tương sinh với vận mệnh của bạn.</p>
+  </div>
+
+  <div class="destiny-search-card">
+    <div class="search-row">
+      <input type="text" id="plateInput" class="plate-input" placeholder="VD: 51F-123.45" maxlength="15" oninput="this.value = this.value.toUpperCase()">
+      <button class="destiny-btn" onclick="analyzePlate()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Xem định mệnh
+      </button>
+    </div>
+    <p style="text-align:center;font-size:13px;color:var(--muted)">Áp dụng cho mọi định dạng biển số xe ô tô & xe máy tại Việt Nam.</p>
+  </div>
+
+  <div class="destiny-result" id="plateResult">
+    <div class="plate-display-wrap">
+      <div class="plate-display" id="plDisplay">—</div>
+    </div>
+    <div class="fs-grid">
+      <div class="fs-card nut">
+        <div class="fs-label">Tổng số nút</div>
+        <div class="fs-val" id="plNut">—</div>
+        <div class="fs-desc" id="plNutDesc">—</div>
+      </div>
+      <div class="fs-card element">
+        <div class="fs-label">Bản mệnh (Ngũ hành)</div>
+        <div class="fs-val" id="plElement">—</div>
+        <div class="fs-desc">Dựa trên con số cuối cùng, biển số mang hành này. Hãy đối chiếu với ngũ hành nạp âm của chủ xe để xem Tương sinh hay Tương khắc.</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('plateInput').addEventListener('keypress', e => {
+  if(e.key === 'Enter') analyzePlate();
+});
+
+async function analyzePlate() {
+  const plate = document.getElementById('plateInput').value.trim();
+  if(!plate) return;
+  
+  const btn = document.querySelector('.destiny-btn');
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#fff;width:18px;height:18px"></div> Đang xem...';
+  btn.disabled = true;
+  
+  try {
+    const res = await fetch('/api/plate/analyze', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({plate})
+    });
+    const data = await res.json();
+    
+    if(data.error) { showToast('Lỗi', data.error, 'error'); return; }
+    
+    document.getElementById('plDisplay').textContent = data.plate.toUpperCase();
+    document.getElementById('plNut').textContent = data.nut + " Nút";
+    document.getElementById('plElement').textContent = "Hành " + data.element;
+    
+    let nutDesc = "";
+    if(data.nut >= 8) nutDesc = "Số nút rất cao. Thể hiện sự no đủ, tài lộc viên mãn, sự nghiệp thăng tiến không ngừng.";
+    else if(data.nut >= 5) nutDesc = "Số nút trung bình khá. Tượng trưng cho sự bình an, ổn định và vững chắc trên mọi hành trình.";
+    else nutDesc = "Số nút thấp. Khuyên bạn nên cẩn trọng, lái xe an toàn và chú ý bảo dưỡng xe định kỳ.";
+    document.getElementById('plNutDesc').textContent = nutDesc;
+    
+    document.getElementById('plateResult').style.display = 'block';
+    document.getElementById('plateResult').scrollIntoView({behavior:'smooth', block:'center'});
+  } catch (e) {
+    showToast('Lỗi', 'Không thể kết nối', 'error');
+  } finally {
+    btn.innerHTML = originalHtml;
+    btn.disabled = false;
+  }
+}
+</script>
+{% endblock %}

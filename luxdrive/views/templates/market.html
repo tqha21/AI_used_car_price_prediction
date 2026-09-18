@@ -1,0 +1,1320 @@
+{% extends "base.html" %}
+{% block title %}Xu Hướng Thị Trường Xe Ô Tô Cũ - LuxDrive AI{% endblock %}
+
+{% block content %}
+<style>
+    /* Reset & Base Variables */
+    :root {
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --primary-light: #e0e7ff;
+        --secondary: #6366f1;
+        --success: #10b981;
+        --success-light: #d1fae5;
+        --danger: #ef4444;
+        --danger-light: #fee2e2;
+        --warning: #f59e0b;
+        --text-dark: #0f172a;
+        --text-gray: #475569;
+        --text-light: #94a3b8;
+        --bg-body: #f8fafc;
+        --bg-card: #ffffff;
+        --border-color: #e2e8f0;
+        --border-radius-lg: 20px;
+        --border-radius-md: 12px;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02);
+        --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
+        --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    }
+
+    body {
+        background-color: var(--bg-body);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--text-dark);
+    }
+
+    .market-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 32px 24px;
+    }
+
+    /* Header Section */
+    .market-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 32px;
+    }
+
+    .header-tag {
+        display: inline-block;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 100px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
+    }
+
+    .header-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin: 0 0 8px 0;
+        letter-spacing: -0.02em;
+    }
+
+    .header-subtitle {
+        color: var(--text-gray);
+        font-size: 1rem;
+        margin: 0;
+        max-width: 600px;
+        line-height: 1.5;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+
+    .btn-outline {
+        background: var(--bg-card);
+        color: var(--primary);
+        border: 1px solid var(--primary-light);
+    }
+
+    .btn-outline:hover {
+        background: var(--primary-light);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .kpi-card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius-md);
+        padding: 24px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 3px;
+        background: var(--gradient-primary);
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .kpi-card:hover::before {
+        opacity: 1;
+    }
+
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .kpi-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .kpi-icon-wrapper {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .kpi-value-row {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.02em;
+    }
+
+    .kpi-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-success { background: var(--success-light); color: var(--success); }
+    .badge-danger { background: var(--danger-light); color: var(--danger); }
+    .badge-primary { background: var(--primary-light); color: var(--primary); }
+
+    .kpi-desc {
+        font-size: 0.75rem;
+        color: var(--text-light);
+    }
+
+    /* Filters Row */
+    .filters-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 8px;
+    }
+
+    .filter-tab {
+        padding: 8px 16px;
+        border-radius: 100px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-gray);
+        background: transparent;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .filter-tab.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .filter-tab:hover:not(.active) {
+        background: var(--border-color);
+    }
+
+    /* Main Chart & Heatmap Area */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius-lg);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+        padding: 24px;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .card-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .card-subtitle {
+        font-size: 0.875rem;
+        color: var(--text-gray);
+        margin-top: 4px;
+    }
+
+    /* Chart specifics */
+    .chart-legends {
+        display: flex;
+        gap: 16px;
+        font-size: 0.875rem;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-gray);
+    }
+
+    .legend-dot {
+        width: 10px; height: 10px; border-radius: 50%;
+    }
+
+    .chart-area {
+        height: 300px;
+        width: 100%;
+        margin-bottom: 24px;
+        /* Simulated Chart styling */
+        background-image: 
+            linear-gradient(to right, transparent 5%, var(--primary) 5%, transparent 6%),
+            linear-gradient(to right, transparent 33%, var(--success) 33%, transparent 34%),
+            linear-gradient(to right, transparent 66%, var(--text-light) 66%, transparent 67%);
+        background-size: 100% 1px;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+
+    .chart-svg-mock {
+        width: 100%; height: 100%;
+    }
+
+    .ai-insight-box {
+        background: var(--primary-light);
+        border-radius: var(--border-radius-md);
+        padding: 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .insight-icon {
+        background: white;
+        color: var(--primary);
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .insight-text {
+        font-size: 0.875rem;
+        color: var(--text-dark);
+        line-height: 1.5;
+    }
+    .insight-text strong { color: var(--primary); }
+
+    /* Heatmap specifics */
+    .heatmap-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .heatmap-item {
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-md);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .heatmap-item-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .heatmap-region {
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .heatmap-region::before {
+        content: '';
+        display: inline-block;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--primary);
+    }
+
+    .heatmap-val {
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: var(--primary);
+    }
+
+    .heatmap-desc {
+        font-size: 0.75rem;
+        color: var(--text-gray);
+    }
+
+    /* 3 Columns Section */
+    .three-cols-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 16px;
+    }
+    
+    .list-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .rank-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .rank-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .rank-num {
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        background: var(--bg-body);
+        color: var(--text-gray);
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .rank-item:nth-child(1) .rank-num { background: #fee2e2; color: #ef4444; }
+    .rank-item:nth-child(2) .rank-num { background: #ffedd5; color: #f97316; }
+    .rank-item:nth-child(3) .rank-num { background: #fef3c7; color: #d97706; }
+
+    .rank-info {
+        flex: 1;
+    }
+
+    .rank-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 2px;
+    }
+
+    .rank-sub {
+        font-size: 0.75rem;
+        color: var(--text-light);
+    }
+
+    .rank-score {
+        text-align: right;
+    }
+
+    .rank-score-val {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+    .score-success { color: var(--success); }
+    .score-danger { color: var(--danger); }
+
+    .rank-score-sub {
+        font-size: 0.7rem;
+        color: var(--text-light);
+    }
+
+    /* EV Market Special Card */
+    .ev-card {
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    }
+
+    .ev-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .ev-stat-box {
+        background: var(--bg-body);
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .ev-stat-val {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 4px;
+    }
+
+    .ev-stat-lbl {
+        font-size: 0.75rem;
+        color: var(--text-gray);
+    }
+
+    .ev-models {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .ev-model {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: var(--primary-light);
+        border-radius: 8px;
+        border: 1px dashed var(--secondary);
+    }
+
+    .ev-model-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    .ev-model-badge {
+        background: white;
+        color: var(--primary);
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 100px;
+    }
+
+    /* Tax Impact Section */
+    .tax-impact {
+        background: var(--gradient-primary);
+        border-radius: var(--border-radius-lg);
+        padding: 40px;
+        color: white;
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 40px;
+        margin-bottom: 40px;
+        box-shadow: var(--shadow-glow);
+    }
+
+    .tax-tag {
+        display: inline-block;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 100px;
+        margin-bottom: 16px;
+        backdrop-filter: blur(4px);
+    }
+
+    .tax-title {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 16px;
+    }
+
+    .tax-desc {
+        font-size: 1rem;
+        line-height: 1.6;
+        opacity: 0.9;
+        margin-bottom: 32px;
+    }
+
+    .advice-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .advice-card {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 12px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .advice-title {
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .advice-text {
+        font-size: 0.875rem;
+        opacity: 0.9;
+        line-height: 1.5;
+    }
+
+    .sim-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        color: var(--text-dark);
+    }
+
+    .sim-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .sim-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+    }
+    
+    .sim-desc {
+        font-size: 0.875rem;
+        color: var(--text-gray);
+        margin-bottom: 20px;
+    }
+
+    .input-group {
+        margin-bottom: 16px;
+    }
+
+    .input-group label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-gray);
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+        border-color: var(--primary);
+    }
+
+    .btn-full {
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    /* Newsletter */
+    .newsletter {
+        background: var(--bg-card);
+        border-radius: var(--border-radius-lg);
+        padding: 40px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+    }
+
+    .news-icon {
+        width: 48px; height: 48px;
+        background: var(--primary);
+        color: white;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .news-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .news-desc {
+        color: var(--text-gray);
+        max-width: 600px;
+        margin: 0 auto 24px;
+        line-height: 1.5;
+    }
+
+    .news-form {
+        display: flex;
+        gap: 12px;
+        max-width: 500px;
+        margin: 0 auto 16px;
+    }
+
+    .news-features {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        font-size: 0.875rem;
+        color: var(--text-gray);
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+</style>
+
+<div class="market-container">
+    <!-- Header -->
+    <div class="market-header">
+        <div>
+            <span class="header-tag">
+                <svg style="display:inline-block; vertical-align:middle; margin-right:4px;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                DỮ LIỆU CẬP NHẬT THEO THỜI GIAN THỰC (ORACLE REAL-TIME)
+            </span>
+            <h1 class="header-title">Xu Hướng Thị Trường <span style="color:var(--primary)">Xe Ô Tô Cũ</span></h1>
+            <p class="header-subtitle">Phân tích dữ liệu từ 450,000+ lịch sử giao dịch, thẩm định giá tự động đa điểm kết hợp mô hình AI Machine Learning tại Việt Nam.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Tải Báo cáo PDF
+            </button>
+            <button class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                Làm mới dữ liệu
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-title">CHỈ SỐ LUXDRIVE INDEX</span>
+                <div class="kpi-icon-wrapper"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            </div>
+            <div class="kpi-value-row">
+                <span class="kpi-value">114.8</span>
+                <span class="kpi-badge badge-success">+2.3%</span>
+            </div>
+            <p class="kpi-desc">Biên độ dao động tăng trưởng so với tháng trước</p>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-title">KHỐI LƯỢNG GIAO DỊCH</span>
+                <div class="kpi-icon-wrapper"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
+            </div>
+            <div class="kpi-value-row">
+                <span class="kpi-value">48,200</span>
+                <span class="kpi-badge badge-primary" style="background:var(--bg-body);color:var(--text-gray)">xe</span>
+            </div>
+            <p class="kpi-desc">Mã hồ sơ sang tên ô tô trên toàn quốc</p>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-title">GIẢM GIÁ BÌNH QUÂN</span>
+                <div class="kpi-icon-wrapper" style="background:var(--danger-light);color:var(--danger)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            </div>
+            <div class="kpi-value-row">
+                <span class="kpi-value">-1.2%</span>
+                <span class="kpi-badge badge-danger">- MoM</span>
+            </div>
+            <p class="kpi-desc">Chỉ số hạ giá chốt hợp đồng nhanh trước tháng 7</p>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-title">TỒN KHO TRUNG BÌNH</span>
+                <div class="kpi-icon-wrapper" style="background:#e0f2fe;color:#0284c7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            </div>
+            <div class="kpi-value-row">
+                <span class="kpi-value">18.5</span>
+                <span class="kpi-badge badge-primary" style="background:#e0f2fe;color:#0284c7">ngày Nhanh hơn 2 ngày</span>
+            </div>
+            <p class="kpi-desc">Tốc độ hấp thụ xe tốt găm sau dịp lễ tết và du lịch</p>
+        </div>
+    </div>
+
+    <!-- Filters Row -->
+    <div class="filters-row">
+        <div class="filter-tabs">
+            <button class="filter-tab active">Toàn thị trường</button>
+            <button class="filter-tab">Sedan (H/C/D)</button>
+            <button class="filter-tab">SUV / CUV (D/E)</button>
+            <button class="filter-tab">Xe sang (Luxury)</button>
+            <button class="filter-tab">Xe điện (EV)</button>
+        </div>
+        <div class="filter-tabs">
+            <button class="filter-tab">30 ngày qua</button>
+            <button class="filter-tab">6 tháng</button>
+            <button class="filter-tab active">1 năm</button>
+            <button class="filter-tab">3 năm</button>
+            <button class="filter-tab">Toàn bộ</button>
+        </div>
+    </div>
+
+    <!-- Main Grid: Chart & Heatmap -->
+    <div class="dashboard-grid">
+        <!-- Chart Area -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Biến động Giá Trung bình Phân khúc Xe Sang</h2>
+                    <p class="card-subtitle">So sánh khấu hao 2015 - 2024: Mercedes-Benz E-Class vs BMW 5-Series vs Lexus ES</p>
+                </div>
+                <div class="chart-legends">
+                    <div class="legend-item"><div class="legend-dot" style="background:var(--primary)"></div> Mercedes E-Class</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:var(--success)"></div> BMW 5-Series</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:var(--text-light)"></div> Lexus ES</div>
+                </div>
+            </div>
+            
+            <div class="chart-area">
+                <svg class="chart-svg-mock" viewBox="0 0 800 300" preserveAspectRatio="none">
+                    <!-- Grid lines -->
+                    <line x1="50" y1="50" x2="750" y2="50" stroke="var(--border-color)" stroke-width="1" stroke-dasharray="4" />
+                    <line x1="50" y1="150" x2="750" y2="150" stroke="var(--border-color)" stroke-width="1" stroke-dasharray="4" />
+                    <line x1="50" y1="250" x2="750" y2="250" stroke="var(--border-color)" stroke-width="1" stroke-dasharray="4" />
+                    
+                    <!-- Y Axis Labels -->
+                    <text x="40" y="55" fill="var(--text-light)" font-size="12" text-anchor="end">3.0 tỷ</text>
+                    <text x="40" y="155" fill="var(--text-light)" font-size="12" text-anchor="end">2.0 tỷ</text>
+                    <text x="40" y="255" fill="var(--text-light)" font-size="12" text-anchor="end">1.0 tỷ</text>
+                    
+                    <!-- X Axis Labels -->
+                    <text x="150" y="280" fill="var(--text-light)" font-size="12" text-anchor="middle">Q1/23</text>
+                    <text x="350" y="280" fill="var(--text-light)" font-size="12" text-anchor="middle">Q2/23</text>
+                    <text x="550" y="280" fill="var(--text-light)" font-size="12" text-anchor="middle">Q3/23</text>
+                    <text x="750" y="280" fill="var(--primary)" font-size="12" text-anchor="middle" font-weight="bold">Hiện tại</text>
+                    
+                    <!-- Lines -->
+                    <path d="M 50,60 Q 300,100 750,220" fill="none" stroke="var(--primary)" stroke-width="3" />
+                    <path d="M 50,80 Q 300,120 750,240" fill="none" stroke="var(--success)" stroke-width="3" />
+                    <path d="M 50,110 Q 300,140 750,180" fill="none" stroke="var(--text-light)" stroke-width="3" />
+                    
+                    <!-- Data points (Hiện tại) -->
+                    <circle cx="750" cy="220" r="5" fill="white" stroke="var(--primary)" stroke-width="2" />
+                    <circle cx="750" cy="240" r="5" fill="white" stroke="var(--success)" stroke-width="2" />
+                    <circle cx="750" cy="180" r="5" fill="white" stroke="var(--text-light)" stroke-width="2" />
+                </svg>
+            </div>
+
+            <div class="ai-insight-box">
+                <div class="insight-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="insight-text">
+                    <strong>Nhận định AI:</strong> Xe Đức mất giá nhanh hơn 14.5% sau mốc 3 năm, Lexus giữ giá tốt nhất (-8%) nhưng thanh khoản chậm hơn 5 ngày.
+                </div>
+                <a href="#" style="color:var(--primary); font-size:0.875rem; font-weight:600; text-decoration:none; margin-left:auto; display:flex; align-items:center; gap:4px">
+                    Xem dữ liệu chi tiết
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Bản Đồ Nhiệt Thanh Khoản</h2>
+                    <p class="card-subtitle">Mức độ hấp thụ nguồn cung ô tô cũ sang tên theo địa bàn</p>
+                </div>
+                <span class="kpi-badge" style="background:var(--primary-light); color:var(--primary)">3 VÙNG MIỀN</span>
+            </div>
+
+            <div class="heatmap-list">
+                <div class="heatmap-item">
+                    <div class="heatmap-item-top">
+                        <span class="heatmap-region" style="color:var(--primary)">Miền Bắc (Hà Nội & lân cận)</span>
+                        <span class="heatmap-val">44.5% Giao dịch</span>
+                    </div>
+                    <p class="heatmap-desc">Ưa chuộng: Sedan C, SUV đô thị. <span style="float:right">Tốc độ: <strong>14 ngày/xe</strong></span></p>
+                </div>
+
+                <div class="heatmap-item">
+                    <div class="heatmap-item-top">
+                        <span class="heatmap-region" style="color:var(--success)">Miền Nam (TP.HCM & ĐNB)</span>
+                        <span class="heatmap-val" style="color:var(--success)">41.2% Giao dịch</span>
+                    </div>
+                    <p class="heatmap-desc">Ưa chuộng: MPV 7 chỗ, CUV đô thị. <span style="float:right">Tốc độ: <strong>11 ngày/xe</strong></span></p>
+                </div>
+
+                <div class="heatmap-item">
+                    <div class="heatmap-item-top">
+                        <span class="heatmap-region" style="color:var(--warning)">Miền Trung & Tây Nguyên</span>
+                        <span class="heatmap-val" style="color:var(--warning)">14.3% Giao dịch</span>
+                    </div>
+                    <p class="heatmap-desc">Ưa chuộng: Bán tải & Crossover. <span style="float:right">Tốc độ: <strong>24 ngày/xe</strong></span></p>
+                </div>
+            </div>
+
+            <div class="ai-insight-box" style="margin-top:20px; background:var(--bg-body); border:1px solid var(--border-color)">
+                <div class="insight-icon" style="background:var(--primary-light); box-shadow:none">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </div>
+                <div class="insight-text" style="color:var(--text-gray); font-size:0.75rem">
+                    Dự báo Quý 3: Miền Bắc mở rộng thúc đẩy nhu cầu xe cá nhân tăng 15% sau dự án vành đai liên vùng, bán buôn xã hội hóa.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 Columns Grid -->
+    <div class="three-cols-grid">
+        <!-- Top Retention -->
+        <div class="card">
+            <div class="list-header">
+                <span class="list-title">
+                    <svg width="20" height="20" style="color:var(--success)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    Top Xe Giữ Giá Tốt Nhất
+                </span>
+                <span class="kpi-badge badge-success">Khấu hao 3 năm</span>
+            </div>
+            <p class="card-subtitle" style="margin-bottom:20px">Tỷ lệ gá trị còn lại so với giá xuất xưởng ban đầu.</p>
+            
+            <div class="rank-list">
+                <div class="rank-item">
+                    <div class="rank-num">1</div>
+                    <div class="rank-info">
+                        <div class="rank-name">Toyota Vios</div>
+                        <div class="rank-sub">Sedan hạng B phổ thông</div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val score-success">82%</div>
+                        <div class="rank-score-sub">Vua giữ giá</div>
+                    </div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">2</div>
+                    <div class="rank-info">
+                        <div class="rank-name">Honda CR-V</div>
+                        <div class="rank-sub">CUV 7 chỗ thực dụng</div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val score-success">80%</div>
+                        <div class="rank-score-sub">+2.5% sau 3 năm</div>
+                    </div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">3</div>
+                    <div class="rank-info">
+                        <div class="rank-name">Porsche Macan</div>
+                        <div class="rank-sub">SUV Thể thao hạng sang</div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val score-success">78%</div>
+                        <div class="rank-score-sub" style="color:var(--primary)">Bảo chứng thương hiệu</div>
+                    </div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">4</div>
+                    <div class="rank-info">
+                        <div class="rank-name">Toyota Fortuner</div>
+                        <div class="rank-sub">SUV Khung gầm rời máy dầu</div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val" style="color:var(--text-dark)">77%</div>
+                        <div class="rank-score-sub">Thanh khoản 13 ngày</div>
+                    </div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">5</div>
+                    <div class="rank-info">
+                        <div class="rank-name">Mazda CX-5</div>
+                        <div class="rank-sub">Crossover bán chạy số 1</div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val" style="color:var(--text-dark)">76%</div>
+                        <div class="rank-score-sub">Nguồn cung dồi dào</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align:center; margin-top:20px; font-size:0.75rem; color:var(--text-light)">
+                Bỏ qua tình trạng đâm đụng, thủy kích, ODO < 50,000 km.
+            </div>
+        </div>
+
+        <!-- Top Depreciation -->
+        <div class="card">
+            <div class="list-header">
+                <span class="list-title">
+                    <svg width="20" height="20" style="color:var(--danger)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                    Top Xe Giảm Giá Sâu Nhất
+                </span>
+                <span class="kpi-badge badge-danger">Chiết khấu sâu</span>
+            </div>
+            <p class="card-subtitle" style="margin-bottom:20px">Lựa chọn lý tưởng cho người tìm kiếm trải nghiệm đỉnh cao với ngân sách tối ưu.</p>
+            
+            <div class="rank-list">
+                <div class="rank-item">
+                    <div class="rank-info">
+                        <div class="rank-name">Mercedes-Benz S-Class (2015-2018)</div>
+                        <div class="rank-sub">Sedan cỡ lớn đầu bảng</div>
+                        <div class="rank-score-sub">Giá hiện tại: 1.8 - 2.5 tỷ VNĐ <span style="float:right; color:var(--primary)">Tiết kiệm 3.2 tỷ</span></div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val score-danger">-58%</div>
+                    </div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-info">
+                        <div class="rank-name">BMW 7-Series (G11/G12)</div>
+                        <div class="rank-sub">Sedan doanh nhân hạng sang</div>
+                        <div class="rank-score-sub">Giá hiện tại: 1.7 - 2.4 tỷ VNĐ <span style="float:right; color:var(--primary)">Đầy rủi ro bảo hành</span></div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val score-danger">-62%</div>
+                    </div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-info">
+                        <div class="rank-name">Ford Explorer 2.3 EcoBoost (2017)</div>
+                        <div class="rank-sub">SUV nhập khẩu Mỹ</div>
+                        <div class="rank-score-sub">Giá hiện tại: 850 - 980 triệu VNĐ <span style="float:right; color:var(--primary)">Không gian rộng gia đình</span></div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val score-danger">-52%</div>
+                    </div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-info">
+                        <div class="rank-name">Audi A6 & A8 (2015-2017)</div>
+                        <div class="rank-sub">Sedan công nghệ Quattro</div>
+                        <div class="rank-score-sub">Giá hiện tại: 900 - 1.3 tỷ VNĐ <span style="float:right; color:var(--primary)">Hệ thống điện tử phức tạp</span></div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val score-danger">-69%</div>
+                    </div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-info">
+                        <div class="rank-name">Land Rover Range Rover Evoque (2014-2016)</div>
+                        <div class="rank-sub">Compact SUV thời trang Anh quốc</div>
+                        <div class="rank-score-sub">Giá hiện tại: 650 - 780 triệu VNĐ <span style="float:right; color:var(--primary)">Chi phí phụ tùng cao</span></div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-score-val score-danger">-65%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align:center; margin-top:16px; font-size:0.75rem; color:var(--text-light)">
+                Khuyến nghị: Xem kỹ sổ bảo dưỡng và Check hãng.
+            </div>
+        </div>
+
+        <!-- EV Market -->
+        <div class="card ev-card">
+            <div class="list-header">
+                <span class="list-title">
+                    <svg width="20" height="20" style="color:var(--primary)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Thị Trường Xe Điện Đã Qua Sử Dụng
+                </span>
+                <span class="kpi-badge badge-primary">Xu Hướng Mới</span>
+            </div>
+            <p class="card-subtitle" style="margin-bottom:20px">Phân tích suy hao pin (State of Health - SOH) và cơ chế định giá xe thuê vs mua pin.</p>
+            
+            <div class="ev-stats">
+                <div class="ev-stat-box">
+                    <div class="ev-stat-val">Tỷ lệ SOH Pin sau 30,000km</div>
+                    <div class="ev-stat-lbl">95.4% Trung bình</div>
+                </div>
+            </div>
+            
+            <div class="ai-insight-box" style="margin-bottom:20px; background:white; border:1px solid var(--primary-light)">
+                <div class="insight-text" style="font-size:0.8rem">
+                    Mức suy giảm dung lượng thực tế thấp hơn 40% so với dự tính ban đầu của thị trường.
+                </div>
+            </div>
+
+            <div class="ev-models">
+                <div class="ev-model">
+                    <div>
+                        <div class="ev-model-name">VinFast VF 8 (Plus | Eco)</div>
+                        <div style="font-size:0.75rem; color:var(--text-gray); margin-top:4px">Thuê pin: 650 - 720 tr - Mua pin: 850 - 940 tr</div>
+                    </div>
+                    <span class="ev-model-badge" style="color:var(--primary)">Thanh khoản 14 ngày</span>
+                </div>
+                <div class="ev-model">
+                    <div>
+                        <div class="ev-model-name">VinFast VF 9 (Full Option)</div>
+                        <div style="font-size:0.75rem; color:var(--text-gray); margin-top:4px">Khấu hao 24% sau năm đầu (Thời cơ tuyệt mua trải nghiệm VIP)</div>
+                    </div>
+                    <span class="ev-model-badge" style="color:var(--success)">SUV E - Đỉnh</span>
+                </div>
+                <div class="ev-model">
+                    <div>
+                        <div class="ev-model-name">Porsche Taycan 4S / Turbo</div>
+                        <div style="font-size:0.75rem; color:var(--text-gray); margin-top:4px">Giảm 40% sau 2-3 năm lăn bánh tại Việt Nam</div>
+                    </div>
+                    <span class="ev-model-badge" style="color:var(--warning)">Đại Gia Thể Thao</span>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:center; margin-top:24px">
+                 <a href="#" style="color:var(--primary); font-size:0.875rem; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    LuxDrive AI độc quyền thuật toán định lượng pin qua cổng OBD-II
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tax Impact CTA Section -->
+    <div class="tax-impact">
+        <div>
+            <span class="tax-tag">SỰ KIỆN KINH TẾ VĨ MÔ & MACHINE LEARNING AI - Q3/2024</span>
+            <h2 class="tax-title">Tác động Kích Cầu: Giảm 50% Phí Trước Bạ Xe Mới & Hệ Lụy Đến Xe Cũ</h2>
+            <p class="tax-desc">Theo thuật toán Monte Carlo mô phỏng với 100,000 kịch bản thị trường. Khi chính sách hỗ trợ lệ phí trước bạ có hiệu lực, giá xe cũ các đời tiệm cận nắp (CKD) mất từ 10.000 triệu - 45 triệu tùy phân khúc để duy trì lợi thế cạnh tranh.</p>
+            
+            <div class="advice-grid">
+                <div class="advice-card">
+                    <div class="advice-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Lời khuyên cho Người Mua
+                    </div>
+                    <div class="advice-text">Thời điểm "vàng" giải ngân mua xe Sedan hạng C và Crossover phổ thông từ 1 - 5 tháng trước khi chính sách có hiệu lực. Rất nhiều chủ xe đang hạ giá tốt để đẩy bán nhanh quay sang mua xe mới.</div>
+                </div>
+                <div class="advice-card">
+                    <div class="advice-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Lời khuyên cho Người Bán
+                    </div>
+                    <div class="advice-text">Nếu sở hữu các dòng xe nhập khẩu (CBU) không được hưởng ưu đãi hoặc xe như Lexus, Porsche, Ford Everest máy dầu, hãy găm giá và tự tin, không nên vội vã bán tháo.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sim-card">
+            <div class="sim-header">
+                <span class="sim-title">MÔ PHỎNG CÁ NHÂN HÓA</span>
+                <div class="kpi-icon-wrapper" style="width:32px; height:32px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+            </div>
+            <p class="sim-desc">Xe của bạn <strong>đang biến động ra sao?</strong> Nhập biển số hoặc dòng xe để thuật toán tính toán chính xác mức hao mòn trong 3 tháng tới.</p>
+            
+            <div class="input-group">
+                <label>Dòng xe / Nhập biển số</label>
+                <input type="text" class="form-input" placeholder="VD: Mazda 3 2021 Luxury" value="">
+            </div>
+            
+            <div class="input-group">
+                <label>Số kilomet (ODO) thực tế</label>
+                <input type="text" class="form-input" placeholder="VD: 32,000 km" value="">
+            </div>
+
+            <button class="btn btn-primary btn-full">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                Dự đoán giá xe này
+            </button>
+        </div>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="newsletter">
+        <div class="news-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <h2 class="news-title">Đăng Ký Nhận Bản Tin Thị Trường Xe Định Kỳ</h2>
+        <p class="news-desc">Bản phân tích chuyên sâu gửi vào mỗi sáng Thứ Hai hàng tuần. Cập nhật biến động giá từng phân khúc, danh sách xe thanh lý ngân hàng và cảnh báo xả lũ ngập nước được AI phát hiện.</p>
+        
+        <div class="news-form">
+            <input type="email" class="form-input" style="flex:1" placeholder="Nhập địa chỉ email của bạn...">
+            <button class="btn btn-primary">Đăng Ký Ngay →</button>
+        </div>
+        
+        <div class="news-features">
+            <div class="feature-item">
+                <svg width="16" height="16" style="color:var(--success)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                100% Miễn phí
+            </div>
+            <div class="feature-item">
+                <svg width="16" height="16" style="color:var(--success)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Hơn 50,000 độc giả & Salon
+            </div>
+            <div class="feature-item">
+                <svg width="16" height="16" style="color:var(--success)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Hủy bất cứ lúc nào
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Filter Tabs ──────────────────────────────────────────
+document.querySelectorAll('.filter-tab').forEach(btn => {
+  btn.parentElement.addEventListener('click', function(e) {
+    if (!e.target.classList.contains('filter-tab')) return;
+    e.target.closest('.filter-tabs').querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+  });
+});
+
+// ── Market Line Chart ─────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.querySelector('.chart-svg-mock');
+  if (!canvas) return;
+  
+  // Replace the SVG chart area with a real Chart.js canvas
+  const chartArea = canvas.closest('.chart-area');
+  if (!chartArea) return;
+  chartArea.innerHTML = '<canvas id="marketLineChart" style="height:300px"></canvas>';
+  chartArea.style.background = 'none';
+  chartArea.style.backgroundImage = 'none';
+
+  const ctx = document.getElementById('marketLineChart');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Q1/21','Q2/21','Q3/21','Q4/21','Q1/22','Q2/22','Q3/22','Q4/22','Q1/23','Q2/23','Q3/23','Q4/23','Hiện tại'],
+      datasets: [
+        {
+          label: 'Mercedes E-Class',
+          data: [3200, 3100, 2980, 2850, 2750, 2600, 2500, 2400, 2300, 2200, 2100, 2050, 1980],
+          borderColor: '#4f46e5',
+          backgroundColor: 'rgba(79,70,229,0.06)',
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#4f46e5',
+          pointBorderWidth: 2,
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: 'BMW 5-Series',
+          data: [2900, 2780, 2650, 2550, 2450, 2320, 2250, 2150, 2070, 1980, 1900, 1850, 1790],
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16,185,129,0.05)',
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#10b981',
+          pointBorderWidth: 2,
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: 'Lexus ES',
+          data: [2600, 2550, 2490, 2420, 2380, 2310, 2260, 2210, 2160, 2110, 2070, 2040, 2010],
+          borderColor: '#94a3b8',
+          backgroundColor: 'rgba(148,163,184,0.04)',
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#94a3b8',
+          pointBorderWidth: 2,
+          fill: true,
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#fff',
+          borderColor: '#e2e8f0',
+          borderWidth: 1,
+          titleColor: '#0f172a',
+          bodyColor: '#475569',
+          padding: 12,
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString('vi-VN')} triệu đ`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: '#f1f5f9' },
+          ticks: { font: { size: 11 }, color: '#94a3b8' }
+        },
+        y: {
+          grid: { color: '#f1f5f9' },
+          ticks: {
+            font: { size: 11 },
+            color: '#94a3b8',
+            callback: v => v.toLocaleString('vi-VN') + ' tr'
+          }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

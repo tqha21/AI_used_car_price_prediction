@@ -1,0 +1,17 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-Migrate
+Flask-SocketIO
+Flask-Bcrypt
+Flask-WTF
+WTForms
+scikit-learn
+joblib
+numpy
+Pillow
+python-socketio
+eventlet
+Werkzeug
+Jinja2
+PyMySQL

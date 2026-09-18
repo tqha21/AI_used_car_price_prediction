@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+{% block title %}LuxDrive AI - Tra Cứu Phạt Nguội & Vi Phạm Giao Thông{% endblock %}
+{% block meta_desc %}Tra cứu phạt nguội và vi phạm giao thông theo biển số xe. Kết nối trực tiếp cổng CSGT, cập nhật thời gian thực từ hơn 350 camera toàn quốc.{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─── VIOLATIONS PAGE ────────────────────────────────────── */
+.vio-page { max-width: 1100px; margin: 0 auto; padding: 28px 32px 64px; }
+
+/* Hero */
+.vio-hero { text-align: center; padding: 40px 20px 32px; max-width: 720px; margin: 0 auto; }
+.vio-hero h1 { font-size: 2rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.vio-hero p  { font-size: 15px; color: var(--muted); line-height: 1.6; max-width: 540px; margin: 0 auto 32px; }
+.vio-source-row { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
+.vio-source-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--card); border: 1px solid var(--border);
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  padding: 5px 12px; border-radius: var(--radius-full);
+}
+
+/* Search Card */
+.vio-search-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 32px;
+  box-shadow: var(--shadow-md); margin-bottom: 32px;
+}
+.vio-search-label {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+.vio-search-row { display: flex; gap: 12px; margin-bottom: 12px; }
+.plate-input-wrap { position: relative; flex: 1; }
+.plate-input {
+  width: 100%; padding: 16px 20px; font-size: 1.3rem; font-weight: 800;
+  letter-spacing: 0.15em; text-transform: uppercase; text-align: center;
+  border: 2px solid var(--border); border-radius: var(--radius-md);
+  background: var(--bg); color: var(--text); outline: none;
+  transition: all 0.2s; font-family: var(--font);
+}
+.plate-input:focus { border-color: var(--primary); background: var(--card); box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+.plate-input::placeholder { color: var(--light); font-size: 1rem; font-weight: 600; letter-spacing: 0.1em; }
+.vio-search-btn {
+  padding: 0 32px; border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 700;
+  background: var(--gradient-primary); color: white; border: none;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: var(--shadow-primary);
+}
+.vio-search-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79,70,229,0.4); }
+.vio-hint { font-size: 12px; color: var(--muted); text-align: center; }
+.vio-hint b { color: var(--text); }
+
+/* Result Area */
+.vio-result { display: none; margin-bottom: 32px; animation: fadeInUp 0.4s ease; }
+
+/* Result Header */
+.vio-result-header {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; box-shadow: var(--shadow-xs);
+}
+.vio-plate-display {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #fef08a; color: #1e1b4b;
+  font-size: 1.6rem; font-weight: 900;
+  letter-spacing: 0.15em; padding: 10px 24px;
+  border-radius: var(--radius-md);
+  border: 3px solid #a16207;
+  font-family: var(--font);
+}
+.vio-result-summary {}
+.vio-status-clean {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 1.1rem; font-weight: 800; color: var(--success);
+  margin-bottom: 4px;
+}
+.vio-status-found {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 1.1rem; font-weight: 800; color: var(--danger);
+  margin-bottom: 4px;
+}
+.vio-status-sub { font-size: 13px; color: var(--muted); }
+.vio-result-meta { text-align: right; }
+.vio-meta-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.vio-meta-val   { font-size: 13px; color: var(--text); font-weight: 600; margin-top: 2px; }
+
+/* Violation Card */
+.vio-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px 24px;
+  margin-bottom: 10px; display: flex; gap: 16px; align-items: flex-start;
+  box-shadow: var(--shadow-xs); transition: all 0.2s;
+}
+.vio-card:hover { box-shadow: var(--shadow-md); }
+.vio-card.critical { border-left: 4px solid var(--danger); }
+.vio-card.high     { border-left: 4px solid var(--warning); }
+.vio-card.medium   { border-left: 4px solid var(--primary); }
+.vio-card.low      { border-left: 4px solid var(--success); }
+.vio-card-icon { font-size: 2rem; flex-shrink: 0; }
+.vio-card-body { flex: 1; }
+.vio-card-type {
+  font-size: 15px; font-weight: 700; color: var(--text);
+  margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.sev-badge { padding: 2px 8px; border-radius: var(--radius-full); font-size: 10px; font-weight: 700; }
+.sev-badge.critical { background: var(--danger-light); color: var(--danger); }
+.sev-badge.high     { background: var(--warning-light); color: #92400e; }
+.sev-badge.medium   { background: var(--primary-light); color: var(--primary); }
+.sev-badge.low      { background: var(--success-light); color: var(--success-dark); }
+.vio-card-detail { font-size: 13px; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.vio-card-fine { font-size: 1.1rem; font-weight: 800; color: var(--danger); }
+.vio-card-points { font-size: 12px; font-weight: 600; color: var(--warning); }
+.vio-card-right { text-align: right; }
+.vio-pay-btn {
+  padding: 8px 16px; background: var(--danger); color: white;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+  white-space: nowrap;
+}
+.vio-pay-btn:hover { background: #dc2626; }
+
+/* Clean State */
+.vio-clean-state {
+  background: var(--success-light); border: 1px solid rgba(16,185,129,0.3);
+  border-radius: var(--radius-lg); padding: 32px; text-align: center; margin-bottom: 16px;
+}
+.vio-clean-state .icon { font-size: 3rem; margin-bottom: 12px; }
+.vio-clean-state h3 { font-size: 1.2rem; font-weight: 800; color: var(--success-dark); margin-bottom: 6px; }
+.vio-clean-state p  { font-size: 14px; color: var(--success-dark); opacity: 0.8; }
+
+/* Common Violations */
+.common-section { margin-top: 40px; }
+.common-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.common-header h2 { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+.common-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.common-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 16px 18px;
+  display: flex; align-items: center; gap: 14px;
+  transition: all 0.2s; cursor: pointer;
+}
+.common-card:hover { border-color: var(--primary-mid); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.common-card-emoji { font-size: 1.6rem; flex-shrink: 0; }
+.common-card-name  { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.common-card-fine  { font-size: 12px; font-weight: 700; color: var(--danger); }
+.common-card-points{ font-size: 11px; color: var(--muted); }
+.common-card-right { margin-left: auto; }
+.common-card-sev { padding: 3px 8px; border-radius: var(--radius-full); font-size: 10px; font-weight: 700; }
+
+/* Info Banner */
+.info-banner {
+  background: var(--gradient-primary); border-radius: var(--radius-xl);
+  padding: 24px 32px; color: white; margin-top: 40px;
+  display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+.info-banner-text h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+.info-banner-text p  { font-size: 13px; opacity: 0.85; }
+.info-banner-btn {
+  background: rgba(255,255,255,0.2); color: white;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  padding: 10px 22px; border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  transition: all 0.15s;
+}
+.info-banner-btn:hover { background: rgba(255,255,255,0.3); }
+
+@media (max-width: 768px) { .common-grid { grid-template-columns: 1fr; } .vio-search-row { flex-direction: column; } .vio-result-header { flex-direction: column; gap: 16px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vio-page">
+
+  <!-- Hero -->
+  <div class="vio-hero">
+    <div class="ai-powered-badge" style="margin-bottom:16px">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+      TRA CỨU THỜI GIAN THỰC
+    </div>
+    <h1>Tra Cứu <span class="gradient-text">Phạt Nguội</span> & Vi Phạm Giao Thông</h1>
+    <p>Nhập biển số xe để kiểm tra vi phạm giao thông. Kết nối trực tiếp Cổng CSGT và Cục Đường bộ Việt Nam. Hoàn toàn miễn phí.</p>
+    <div class="vio-source-row">
+      <span class="vio-source-chip">🔗 Cổng CSGT chính thức</span>
+      <span class="vio-source-chip">📡 350+ camera toàn quốc</span>
+      <span class="vio-source-chip">⚡ Cập nhật thời gian thực</span>
+      <span class="vio-source-chip">🆓 Hoàn toàn miễn phí</span>
+    </div>
+  </div>
+
+  <!-- Search Card -->
+  <div class="vio-search-card">
+    <div class="vio-search-label">
+      <svg width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Nhập biển số xe cần tra cứu
+    </div>
+    <div class="vio-search-row">
+      <div class="plate-input-wrap">
+        <input type="text" id="plateInput" class="plate-input" placeholder="VD: 30A-12345" maxlength="12"
+          oninput="this.value = this.value.toUpperCase()">
+      </div>
+      <button class="vio-search-btn" onclick="lookupViolation()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Tra cứu ngay
+      </button>
+    </div>
+    <p class="vio-hint">Định dạng đúng: <b>29A-12345</b> hoặc <b>51G1-23456</b>. Nhấn <b>Enter</b> để tìm kiếm.</p>
+  </div>
+
+  <!-- Result -->
+  <div class="vio-result" id="vioResult">
+    <div class="vio-result-header">
+      <div class="vio-plate-display" id="vioPlateDisplay">—</div>
+      <div class="vio-result-summary">
+        <div id="vioStatusEl"></div>
+        <div class="vio-status-sub" id="vioSubStatus">Dữ liệu từ Cục CSGT</div>
+      </div>
+      <div class="vio-result-meta">
+        <div class="vio-meta-label">Thời gian tra cứu</div>
+        <div class="vio-meta-val" id="vioTime">—</div>
+      </div>
+    </div>
+    <div id="vioList"></div>
+  </div>
+
+  <!-- Common Violations -->
+  <div class="common-section">
+    <div class="common-header">
+      <h2>⚠️ Các lỗi vi phạm phổ biến & mức phạt</h2>
+      <span style="font-size:13px;color:var(--muted)">Nghị định 168/2024/NĐ-CP</span>
+    </div>
+    <div class="common-grid" id="commonGrid">
+      <!-- JS filled -->
+      <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted)">
+        <div class="spinner"></div> Đang tải dữ liệu...
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <div class="info-banner-text">
+      <h3>Kiểm tra phạt nguội trước khi mua xe cũ</h3>
+      <p>LuxDrive AI tự động kiểm tra vi phạm chưa xử lý khi định giá xe, bảo vệ bạn khỏi rủi ro pháp lý tiềm ẩn.</p>
+    </div>
+    <button class="info-banner-btn" onclick="location.href='{{ url_for('main.index') }}'">
+      Định giá xe ngay →
+    </button>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('plateInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') lookupViolation();
+});
+
+async function lookupViolation() {
+  const plate = document.getElementById('plateInput').value.trim();
+  if (!plate) { showToast('Lỗi', 'Vui lòng nhập biển số xe.', 'warning'); return; }
+
+  const btn = document.querySelector('.vio-search-btn');
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#fff;width:18px;height:18px"></div> Đang tra cứu...';
+  btn.disabled = true;
+
+  try {
+    const res  = await fetch('/api/violations/lookup', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ plate }) });
+    const data = await res.json();
+
+    document.getElementById('vioPlateDisplay').textContent = data.plate;
+    document.getElementById('vioTime').textContent = new Date().toLocaleTimeString('vi-VN');
+    const listEl = document.getElementById('vioList');
+    const statEl = document.getElementById('vioStatusEl');
+
+    if (!data.found) {
+      statEl.innerHTML = '<div class="vio-status-clean">✅ Không có vi phạm</div>';
+      listEl.innerHTML = `
+        <div class="vio-clean-state">
+          <div class="icon">🎉</div>
+          <h3>Không phát hiện vi phạm</h3>
+          <p>Biển số <strong>${data.plate}</strong> hiện không có vi phạm nào chưa xử lý trong hệ thống CSGT.</p>
+        </div>`;
+    } else {
+      statEl.innerHTML = `<div class="vio-status-found">⚠️ Phát hiện ${data.count} vi phạm</div>`;
+      listEl.innerHTML = data.violations.map(v => `
+        <div class="vio-card ${v.severity}">
+          <span class="vio-card-icon">${v.icon}</span>
+          <div class="vio-card-body">
+            <div class="vio-card-type">
+              ${v.type}
+              <span class="sev-badge ${v.severity}">${v.severity.toUpperCase()}</span>
+            </div>
+            <div class="vio-card-detail">
+              <span>📅 ${v.date}</span>
+              <span>📍 ${v.location}</span>
+              ${v.camera ? `<span>📷 Camera: ${v.camera}</span>` : ''}
+            </div>
+            <div class="vio-card-fine">${v.fine}</div>
+            ${v.points ? `<div class="vio-card-points">⚠️ Trừ ${v.points} điểm GPLX</div>` : ''}
+          </div>
+          <div class="vio-card-right">
+            <button class="vio-pay-btn">Nộp phạt online</button>
+          </div>
+        </div>`).join('');
+    }
+
+    document.getElementById('vioResult').style.display = 'block';
+    document.getElementById('vioResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (e) {
+    showToast('Lỗi', 'Không thể kết nối đến hệ thống tra cứu. Thử lại sau.', 'error');
+  } finally {
+    btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Tra cứu ngay`;
+    btn.disabled = false;
+  }
+}
+
+// Load common violations
+fetch('/api/violations/common').then(r => r.json()).then(data => {
+  const sevColor = { critical:'var(--danger)', high:'var(--warning)', medium:'var(--primary)', low:'var(--success)' };
+  const sevBg    = { critical:'var(--danger-light)', high:'var(--warning-light)', medium:'var(--primary-light)', low:'var(--success-light)' };
+  document.getElementById('commonGrid').innerHTML = data.map(v => `
+    <div class="common-card">
+      <span class="common-card-emoji">${v.icon}</span>
+      <div>
+        <div class="common-card-name">${v.type}</div>
+        <div class="common-card-fine">${v.fine}</div>
+        ${v.points > 0 ? `<div class="common-card-points">Trừ ${v.points} điểm GPLX</div>` : ''}
+      </div>
+      <div class="common-card-right">
+        <span class="common-card-sev" style="background:${sevBg[v.severity]||'var(--bg2)'};color:${sevColor[v.severity]||'var(--muted)'}">
+          ${(v.severity||'low').toUpperCase()}
+        </span>
+      </div>
+    </div>`).join('');
+}).catch(() => {
+  document.getElementById('commonGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px">Không thể tải dữ liệu</div>';
+});
+</script>
+{% endblock %}

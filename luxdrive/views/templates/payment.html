@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}LuxDrive AI - Thanh toán{% endblock %}
+{% block extra_css %}
+<style>
+.payment-wrap{max-width:860px;margin:0 auto;padding:40px;display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:start}
+.payment-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.payment-card h2{font-size:20px;font-weight:800;color:var(--white);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.car-summary{display:flex;gap:14px;align-items:center;background:var(--card2);border-radius:10px;padding:14px;margin-bottom:24px}
+.car-summary img{width:80px;height:56px;border-radius:8px;object-fit:cover}
+.car-summary h3{font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px}
+.car-summary p{font-size:13px;color:var(--muted)}
+.fee-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(30,45,71,.5);font-size:14px}
+.fee-row span:first-child{color:var(--muted)}
+.fee-row span:last-child{font-weight:600;color:var(--white)}
+.fee-row.total{border:none;margin-top:8px;font-size:18px;font-weight:800}
+.fee-row.total span:last-child{color:var(--accent);font-size:22px}
+.method-cards{display:flex;flex-direction:column;gap:10px;margin:20px 0}
+.method-card{border:2px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:12px;position:relative}
+.method-card:has(input:checked){border-color:var(--accent);background:rgba(99,102,241,.08)}
+.method-card input{position:absolute;opacity:0}
+.method-logo{font-size:24px;width:40px;text-align:center}
+.method-name{font-size:14px;font-weight:700;color:var(--white)}
+.method-desc{font-size:12px;color:var(--muted)}
+.pay-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.pay-btn:hover{opacity:.85;transform:translateY(-1px)}
+.security-note{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:12px;justify-content:center}
+</style>
+{% endblock %}
+{% block content %}
+<div style="padding:32px 40px 0;max-width:860px;margin:0 auto">
+  <p style="font-size:13px;color:var(--muted)"><a href="{{ url_for('main.index') }}" style="color:var(--accent);text-decoration:none">Trang chủ</a> › Thanh toán</p>
+  <h1 style="font-size:32px;font-weight:800;color:var(--white);margin:12px 0 4px">Cổng Thanh toán</h1>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:0">Hoàn tất giao dịch an toàn qua LuxDrive Pay</p>
+</div>
+<div class="payment-wrap">
+  <!-- LEFT: Method Selection -->
+  <div class="payment-card">
+    <h2>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Phương thức thanh toán
+    </h2>
+    <div class="car-summary">
+      <img src="{{ vehicle.primary_image }}" alt="{{ vehicle.full_name }}">
+      <div>
+        <h3>{{ vehicle.full_name }}</h3>
+        <p>{{ vehicle.mileage_formatted }} · {{ vehicle.fuel_type }}</p>
+      </div>
+    </div>
+    <form method="POST" action="{{ url_for('payment.process_payment', vehicle_id=vehicle.id) }}" id="payForm">
+      <div class="method-cards">
+        <label class="method-card">
+          <input type="radio" name="method" value="vnpay" checked>
+          <span class="method-logo">🏦</span>
+          <div><p class="method-name">VNPay</p><p class="method-desc">Thanh toán qua ngân hàng nội địa</p></div>
+        </label>
+        <label class="method-card">
+          <input type="radio" name="method" value="momo">
+          <span class="method-logo">💜</span>
+          <div><p class="method-name">MoMo</p><p class="method-desc">Ví điện tử MoMo</p></div>
+        </label>
+        <label class="method-card">
+          <input type="radio" name="method" value="stripe">
+          <span class="method-logo">💳</span>
+          <div><p class="method-name">Thẻ Quốc tế</p><p class="method-desc">Visa / Mastercard / Amex</p></div>
+        </label>
+      </div>
+    </form>
+  </div>
+  <!-- RIGHT: Order Summary -->
+  <div>
+    <div class="payment-card">
+      <h2>📋 Tóm tắt đơn hàng</h2>
+      <div class="fee-row"><span>Giá xe</span><span>{{ vehicle.price_formatted }}</span></div>
+      <div class="fee-row"><span>Phí dịch vụ (1%)</span><span>{{ "{:,}".format(fee).replace(",",".") }} đ</span></div>
+      <div class="fee-row total"><span>Tổng cộng</span><span>{{ "{:,}".format(total).replace(",",".") }} đ</span></div>
+      <button class="pay-btn" onclick="document.getElementById('payForm').submit()" style="margin-top:20px">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Xác nhận thanh toán
+      </button>
+      <p class="security-note">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Mã hóa SSL 256-bit · Bảo mật tuyệt đối
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

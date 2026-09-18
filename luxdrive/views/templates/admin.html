@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxDrive AI - Quản trị</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-car-side"></i>
+                    <span>LuxDrive AI</span>
+                </div>
+                <div class="subtitle">ENTERPRISE ENGINE</div>
+            </div>
+            
+            <div class="sidebar-nav-title">PORTAL QUẢN TRỊ</div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <i class="fa-solid fa-layer-group"></i> Tổng quan hệ thống
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-check-double"></i> Kiểm duyệt & Định giá AI
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-users"></i> Người dùng & Showroom
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-microchip"></i> Giám sát mô hình AI
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i> Báo cáo & Doanh thu
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-gear"></i> Cấu hình hệ thống
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="cluster-status">
+                    <div class="cluster-title">Cluster: AP-SE-1 <span class="status-dot"></span></div>
+                    <div class="cluster-desc">Tải tính toán: 24.8% • ms: 112ms</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm hồ sơ xe, mã VIN, người dùng, showroom...">
+                </div>
+                
+                <div class="topbar-actions">
+                    <div class="status-badge"><span class="status-dot green"></span> Neural v4.0 Active</div>
+                    <button class="btn btn-outline"><i class="fa-solid fa-up-right-from-square"></i> Xem sàn xe</button>
+                    <div class="action-icon notification">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="action-icon">
+                        <i class="fa-regular fa-sun"></i>
+                    </div>
+                    <div class="user-profile">
+                        <img src="https://i.pravatar.cc/150?img=11" alt="User Avatar">
+                        <div class="user-info">
+                            <div class="user-name">Nguyễn Văn Admin</div>
+                            <div class="user-role">Super Admin</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-body">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div>
+                        <div class="tag-live"><span class="status-dot blink"></span> THỜI GIAN THỰC (REAL-TIME SYNCED) <span class="update-time">Cập nhật 15 giây trước</span></div>
+                        <h1>Tổng quan Hệ thống Quản trị</h1>
+                        <p class="subtitle">Bảng điều khiển giám sát luồng thẩm định xe AI, kiểm duyệt hồ sơ niêm yết và hiệu suất kinh doanh trên toàn sàn.</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="time-filters">
+                            <button class="active">Hôm nay</button>
+                            <button>7 ngày qua</button>
+                            <button>30 ngày qua</button>
+                            <button>Quý này</button>
+                        </div>
+                        <div class="action-btns">
+                            <button class="btn btn-light"><i class="fa-solid fa-filter"></i> Bộ lọc</button>
+                            <button class="btn btn-primary"><i class="fa-solid fa-file-export"></i> Xuất Báo cáo (PDF/Excel)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Metrics -->
+                <div class="kpi-grid">
+                    <!-- Card 1 -->
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="title">NGƯỜI DÙNG & SHOWROOM</span>
+                            <div class="icon blue-light"><i class="fa-solid fa-building-user"></i></div>
+                        </div>
+                        <div class="kpi-value">
+                            48,250 <span class="trend up"><i class="fa-solid fa-arrow-up"></i> 12.4%</span>
+                        </div>
+                        <div class="kpi-desc">3,420 Showroom đối tác xác thực</div>
+                        <div class="kpi-footer-chart">
+                            <span>Tỷ lệ hoạt động tuần: 82%</span>
+                            <div class="sparkline-placeholder blue"></div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="title">XE ĐANG NIÊM YẾT</span>
+                            <div class="icon cyan-light"><i class="fa-solid fa-car"></i></div>
+                        </div>
+                        <div class="kpi-value">
+                            1,428 <span class="unit">xe</span> <span class="trend up"><i class="fa-solid fa-arrow-up"></i> 5.8%</span>
+                        </div>
+                        <div class="kpi-desc">94.2% đã xác thực 178 hạng mục AI</div>
+                        <div class="kpi-footer-status">
+                            <span class="status-dot cyan"></span> Đang mở giao dịch <a href="#">Chi tiết sàn <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="kpi-card highlight-red">
+                        <div class="kpi-header">
+                            <span class="title">HỒ SƠ CHỜ DUYỆT</span>
+                            <div class="icon red-light"><i class="fa-solid fa-clipboard-list"></i><span class="alert-dot"></span></div>
+                        </div>
+                        <div class="kpi-value">
+                            38 <span class="badge-vip">12 VIP khẩn</span>
+                        </div>
+                        <div class="kpi-desc">Thời gian xử lý trung bình: <strong>4.2 phút</strong></div>
+                        <div class="kpi-footer-action">
+                            <span>Cần quản trị can thiệp</span>
+                            <button class="btn btn-danger-sm">Xử lý ngay</button>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="title">DOANH THU THÁNG NÀY</span>
+                            <div class="icon purple-light"><i class="fa-solid fa-wallet"></i></div>
+                        </div>
+                        <div class="kpi-value">
+                            2.84 <span class="unit">tỷ</span> <span class="trend up-purple"><i class="fa-solid fa-arrow-up"></i> 18.2%</span>
+                        </div>
+                        <div class="kpi-currency">₫</div>
+                        <div class="kpi-desc">342 giao dịch & gói thẩm định chuyên sâu</div>
+                        <div class="kpi-progress">
+                            <div class="progress-info"><span>Mục tiêu Q3:</span> <span>88.5%</span></div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 88.5%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <!-- Main Chart -->
+                    <div class="chart-card main-chart">
+                        <div class="chart-header">
+                            <div>
+                                <h2>Biến Động Định giá & Lượng Xe Thẩm Định</h2>
+                                <p>Dữ liệu tổng hợp qua AI Engine trong 6 tháng gần nhất (T4 - T9)</p>
+                            </div>
+                            <div class="chart-filters">
+                                <button>6 tháng</button>
+                                <button>12 tháng</button>
+                                <button class="active">Năm 2024</button>
+                            </div>
+                        </div>
+                        <div class="chart-stats">
+                            <div class="stat">
+                                <div class="label">GIÁ TRỊ TTB / XE</div>
+                                <div class="val">1.25 Tỷ VNĐ</div>
+                            </div>
+                            <div class="stat">
+                                <div class="label">ĐỘ CHÍNH XÁC AI</div>
+                                <div class="val">98.6% (±1.2%)</div>
+                            </div>
+                            <div class="stat">
+                                <div class="label">THỜI GIAN CHỐT TTB</div>
+                                <div class="val text-blue">9.4 Ngày</div>
+                            </div>
+                        </div>
+                        <div class="chart-area-placeholder">
+                            <!-- Placeholder for Bar/Line Chart -->
+                            <div class="mock-bars">
+                                <div class="bar" style="height: 40%"></div>
+                                <div class="bar" style="height: 50%"></div>
+                                <div class="bar" style="height: 65%"></div>
+                                <div class="bar" style="height: 75%"></div>
+                                <div class="bar" style="height: 85%"></div>
+                                <div class="bar active" style="height: 95%"></div>
+                            </div>
+                            <div class="mock-line">
+                                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                                    <path d="M0 30 Q 10 25, 20 20 T 40 10 T 60 15 T 80 5 T 100 2" fill="none" stroke="#2563eb" stroke-width="2"/>
+                                    <circle cx="0" cy="30" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
+                                    <circle cx="20" cy="20" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
+                                    <circle cx="40" cy="10" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
+                                    <circle cx="60" cy="15" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
+                                    <circle cx="80" cy="5" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
+                                    <circle cx="100" cy="2" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
+                                </svg>
+                            </div>
+                            <div class="chart-x-axis">
+                                <span>Tháng 4</span><span>Tháng 5</span><span>Tháng 6</span><span>Tháng 7</span><span>Tháng 8</span><span class="active">Tháng 9 (Nay)</span>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <div><span class="legend-color purple"></span> Số hồ sơ xe niêm yết</div>
+                            <div><span class="legend-line blue"></span> Khối lượng định giá thành công</div>
+                            <a href="#" class="report-link">Báo cáo kiểm toán <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+
+                    <!-- Donut Chart -->
+                    <div class="chart-card donut-chart">
+                        <div class="chart-header">
+                            <div>
+                                <h2>Cơ Cấu Thị Phần Hãng Xe</h2>
+                                <p>Phân bổ 1,428 xe đang hoạt động trên sàn</p>
+                            </div>
+                            <div class="icon-btn"><i class="fa-solid fa-circle-info"></i></div>
+                        </div>
+                        <div class="donut-area">
+                            <div class="mock-donut">
+                                <div class="donut-center">
+                                    <div class="val">1,428</div>
+                                    <div class="lbl">XE NIÊM YẾT</div>
+                                </div>
+                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                  <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                  <path class="circle blue" stroke-dasharray="34, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                  <path class="circle cyan" stroke-dasharray="24, 100" stroke-dashoffset="-34" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                  <path class="circle red" stroke-dasharray="18, 100" stroke-dashoffset="-58" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                  <path class="circle purple" stroke-dasharray="14, 100" stroke-dashoffset="-76" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                  <path class="circle gray" stroke-dasharray="10, 100" stroke-dashoffset="-90" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                            </div>
+                            <div class="donut-legend">
+                                <div class="legend-item"><span class="dot blue"></span> <span class="name">Mercedes-Benz</span> <strong>34%</strong> <span class="count">(486 xe)</span></div>
+                                <div class="legend-item"><span class="dot cyan"></span> <span class="name">BMW</span> <strong>24%</strong> <span class="count">(343 xe)</span></div>
+                                <div class="legend-item"><span class="dot red"></span> <span class="name">Toyota & Lexus</span> <strong>18%</strong> <span class="count">(257 xe)</span></div>
+                                <div class="legend-item"><span class="dot purple"></span> <span class="name">Audi</span> <strong>14%</strong> <span class="count">(200 xe)</span></div>
+                                <div class="legend-item"><span class="dot gray"></span> <span class="name">Khác (Porsche, Mazda...)</span> <strong>10%</strong> <span class="count">(142 xe)</span></div>
+                            </div>
+                        </div>
+                        <div class="chart-footer-note">
+                            Hãng xe sang Đức (Mercedes, BMW, Audi) chiếm tới 72% tổng dung lượng định giá
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <div class="title-area">
+                            <h2>Hàng Đợi Kiểm Duyệt & Thẩm Định AI <span class="badge-danger">38 xe chờ</span></h2>
+                            <p>Hồ sơ xe mới đẩy từ đối tác showroom và người dùng đang chờ xác nhận lưu kho sàn</p>
+                        </div>
+                        <div class="action-area">
+                            <div class="search-input">
+                                <i class="fa-solid fa-search"></i>
+                                <input type="text" placeholder="Lọc theo VIN, Model, Showroom">
+                            </div>
+                            <button class="btn btn-secondary">Duyệt hàng loạt (5)</button>
+                        </div>
+                    </div>
+                    <div class="table-filters">
+                        <button class="active">Tất cả (38)</button>
+                        <button>Mới nhất (18)</button>
+                        <button><span class="dot purple"></span> Ưu tiên VIP (12)</button>
+                        <button><span class="dot red"></span> Cảnh báo AI (8 - Lệch ODO / Nghi ngập nước)</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>XE & MÃ ĐỊNH DANH VIN</th>
+                                    <th>NGƯỜI ĐĂNG / ĐỐI TÁC</th>
+                                    <th>ĐỀ XUẤT VS AI TARGET</th>
+                                    <th>ĐỘ CHUẨN AI & TÌNH TRẠNG</th>
+                                    <th>THỜI GIAN</th>
+                                    <th>THAO TÁC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Row 1 -->
+                                <tr>
+                                    <td>
+                                        <div class="car-info">
+                                            <img src="https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=100&h=60&fit=crop" alt="C300">
+                                            <div class="car-details">
+                                                <div class="car-name">Mercedes-Benz C300 AMG (2022)</div>
+                                                <div class="car-meta">VIN: WDD206471PA04*** • Biển: 30K-882.19</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="name">Auto Luxury Hà Nội</div>
+                                            <div class="role blue"><i class="fa-solid fa-shield-check"></i> Đối tác Kim Cương</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="price-cell">
+                                            <div class="price">1.390 tỷ ₫</div>
+                                            <div class="ai-target">AI Target: 1.415 tỷ (-1.8%)</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-badge-cell cyan">
+                                            <i class="fa-solid fa-shield"></i> 98.4% • Chuẩn 176 hạng mục
+                                        </div>
+                                    </td>
+                                    <td><div class="time">8 phút<br>trước</div></td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="btn btn-primary-sm">Duyệt ngay</button>
+                                            <button class="btn btn-icon"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 2 -->
+                                <tr>
+                                    <td>
+                                        <div class="car-info">
+                                            <img src="https://images.unsplash.com/photo-1503376760367-17257321bb81?w=100&h=60&fit=crop" alt="Macan">
+                                            <div class="car-details">
+                                                <div class="car-name">Porsche Macan GTS (2021) <span class="tag-vip">VIP</span></div>
+                                                <div class="car-meta">VIN: WP1AA2956PLB99*** • Biển: 51K-678.90</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="name">Nguyễn Tuấn Kiên</div>
+                                            <div class="role gray">Chính chủ cá nhân (eKYC OK)</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="price-cell">
+                                            <div class="price">3.450 tỷ ₫</div>
+                                            <div class="ai-target">AI Target: 3.420 tỷ (+0.9%)</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-badge-cell cyan">
+                                            <i class="fa-solid fa-shield"></i> 99.1% • Sơn zin 98%
+                                        </div>
+                                    </td>
+                                    <td><div class="time">21 phút<br>trước</div></td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="btn btn-primary-sm">Duyệt ngay</button>
+                                            <button class="btn btn-icon"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 3 (Alert) -->
+                                <tr class="alert-row">
+                                    <td>
+                                        <div class="car-info">
+                                            <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=100&h=60&fit=crop" alt="BMW">
+                                            <div class="car-details">
+                                                <div class="car-name">BMW 330i M Sport (2020) <span class="tag-danger">CẢNH BÁO</span></div>
+                                                <div class="car-meta">VIN: WBA5R7C56LF124*** • Biển: 29A-345.12</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="name">Minh Phát Auto Sài Gòn</div>
+                                            <div class="role gray">Showroom Tiêu chuẩn</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="price-cell">
+                                            <div class="price red">1.180 tỷ ₫</div>
+                                            <div class="ai-target red">Bất thường định giá (-14%)</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-badge-cell red">
+                                            <i class="fa-solid fa-triangle-exclamation"></i> Lệch ODO 28,000km
+                                        </div>
+                                    </td>
+                                    <td><div class="time">35 phút<br>trước</div></td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="btn btn-danger-outline-sm">Kiểm định lại</button>
+                                            <button class="btn btn-icon"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 4 -->
+                                <tr>
+                                    <td>
+                                        <div class="car-info">
+                                            <img src="https://images.unsplash.com/photo-1628277613967-6abca504d0ac?w=100&h=60&fit=crop" alt="Lexus">
+                                            <div class="car-details">
+                                                <div class="car-name">Lexus RX350 AWD (2022)</div>
+                                                <div class="car-meta">VIN: JT2BZRCA8NC158*** • Biển: 43A-559.22</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="name">Đà Nẵng Car Center</div>
+                                            <div class="role blue"><i class="fa-solid fa-medal"></i> Đối tác Vàng</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="price-cell">
+                                            <div class="price">3.890 tỷ ₫</div>
+                                            <div class="ai-target">AI Target: 3.880 tỷ (+0.2%)</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-badge-cell cyan">
+                                            <i class="fa-solid fa-shield"></i> 97.9% • Hồ sơ lịch sử hãng OK
+                                        </div>
+                                    </td>
+                                    <td><div class="time">54 phút<br>trước</div></td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="btn btn-primary-sm">Duyệt ngay</button>
+                                            <button class="btn btn-icon"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div>Hiển thị 4 trên tổng số 38 hồ sơ chờ duyệt</div>
+                        <div class="pagination">
+                            <button class="btn-page text">Trang trước</button>
+                            <button class="btn-page active">1</button>
+                            <button class="btn-page">2</button>
+                            <button class="btn-page">3</button>
+                            <button class="btn-page text">Trang sau</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Widgets -->
+                <div class="bottom-widgets-grid">
+                    <!-- AI Algorithms -->
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <div class="title-with-icon">
+                                <div class="icon purple"><i class="fa-solid fa-network-wired"></i></div>
+                                <div>
+                                    <h2>Cụm Thuật Toán AI & Microservices</h2>
+                                    <p>Tình trạng tính toán thời gian thực của các pipeline định giá</p>
+                                </div>
+                            </div>
+                            <div class="status-badge-light cyan"><span class="dot cyan"></span> Toàn bộ cụm ổn định</div>
+                        </div>
+                        <div class="algorithms-grid">
+                            <div class="algo-item">
+                                <div class="algo-header">
+                                    <span class="name">Computer Vision OCR</span>
+                                    <span class="badge dark">99.9% SLA</span>
+                                </div>
+                                <p>Bóc tách đăng kiểm & số VIN</p>
+                                <div class="latency">Độ trễ: <strong>42ms</strong></div>
+                            </div>
+                            <div class="algo-item">
+                                <div class="algo-header">
+                                    <span class="name">Price Gradient Boost</span>
+                                    <span class="badge dark">Hoạt động</span>
+                                </div>
+                                <p>Hồi quy định giá 68 thuộc tính</p>
+                                <div class="latency">Độ trễ: <strong>120ms</strong></div>
+                            </div>
+                            <div class="algo-item">
+                                <div class="algo-header">
+                                    <span class="name">ODO Fraud Detector</span>
+                                    <span class="badge purple">Mô hình v4.2</span>
+                                </div>
+                                <p>Phát hiện tua công tơ mét</p>
+                                <div class="latency">Độ nhạy: <strong>98.7%</strong></div>
+                            </div>
+                        </div>
+                        <div class="widget-footer">
+                            Hạ tầng điện toán: Google Cloud AP-Southeast (Hà Nội Edge PoP) <a href="#">Cấu hình mô hình <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+
+                    <!-- Activity Log -->
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <h2>Nhật Ký Thao Tác Gần Đây</h2>
+                            <a href="#" class="link-blue">Xem tất cả</a>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="icon-circle gray"><i class="fa-solid fa-check"></i></div>
+                                <div class="activity-content">
+                                    <div class="text"><strong>Trần Anh Tuấn</strong> đã phê duyệt niêm yết xe <strong>Audi Q7 2021</strong></div>
+                                    <div class="time">4 phút trước • Từ chối cảnh báo sơn lại cửa sau</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="icon-circle red-light text-red"><i class="fa-solid fa-shield-halved"></i></div>
+                                <div class="activity-content">
+                                    <div class="text"><strong>AI Auto-Shield</strong> gắn cờ nghi vấn hồ sơ <strong>Kia Seltos 2020</strong></div>
+                                    <div class="time">12 phút trước • Ảnh khoang máy nghi ngập nước bùn rỉ sét</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="icon-circle purple-light text-purple"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                                <div class="activity-content">
+                                    <div class="text"><strong>Showroom Việt Hàn</strong> vừa nạp <strong>50.000.000 ₫</strong> vào quỹ định giá</div>
+                                    <div class="time">28 phút trước • Cổng VNPAY QR xác thực tức thì</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-footer center text-gray">
+                            Phiên bản mới: HMAC SHA-256 Token • <a href="#">Đã đồng bộ SSO</a>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="main-footer">
+                    <div>LuxDrive AI v4.0.2 Enterprise <span class="dot-separator">•</span> <span class="text-blue"><span class="dot blue"></span> Máy chủ: Đang hoạt động bình thường (99.98% SLA)</span></div>
+                    <div>© 2024 LuxDrive AI Platform. All rights reserved.</div>
+                </footer>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

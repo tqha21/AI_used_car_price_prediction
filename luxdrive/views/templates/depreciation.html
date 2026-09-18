@@ -1,0 +1,651 @@
+{% extends "base.html" %}
+{% block title %}LuxDrive AI - Trung Tâm Tiện Ích & Tra Cứu Ô Tô{% endblock %}
+{% block meta_desc %}Công cụ tra cứu phạt nguội, kiểm tra ODO, dự toán lăn bánh, định giá biển số và các tiện ích ô tô toàn diện được hỗ trợ bởi LuxDrive AI.{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─── UTILITIES / DEPRECIATION PAGE ─────────────────────── */
+.util-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+}
+
+/* Header */
+.util-header {
+  margin-bottom: 32px;
+}
+.util-breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 10px; display:flex; gap:6px; align-items:center; }
+.util-header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+.util-header p  { font-size: 14px; color: var(--muted); max-width: 680px; line-height: 1.6; }
+
+/* KPI Stats row */
+.util-kpi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+.ukpi { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 20px; display: flex; align-items: center; gap: 14px; }
+.ukpi-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ukpi-val  { font-size: 1.35rem; font-weight: 800; color: var(--text); }
+.ukpi-label { font-size: 12px; color: var(--muted); }
+.ukpi-trend { font-size: 11px; font-weight: 600; }
+
+/* Quick Utilities Hub */
+.hub-section { margin-bottom: 40px; }
+.hub-section-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: var(--radius-full); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.hub-section h2 { font-size: 1.3rem; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.hub-section p  { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+.quick-utils { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+.util-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.util-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary-mid); }
+.util-card-icon { width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; }
+.util-card-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.util-card-desc  { font-size: 12px; color: var(--muted); line-height: 1.5; flex: 1; }
+.util-card-badge { align-self: flex-start; background: var(--bg2); color: var(--muted); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: var(--radius-full); }
+.util-card-link  { font-size: 12px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; }
+
+/* Second row utilities */
+.utils-row2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.util-card2 {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.util-card2:hover { border-color: var(--primary-mid); background: var(--primary-light); }
+.util-card2-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.util-card2-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.util-card2-sub   { font-size: 11px; color: var(--muted); }
+.util-card2-meta  { font-size: 12px; font-weight: 600; color: var(--primary); margin-left: auto; }
+
+/* Depreciation Calculator section */
+.calc-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 32px;
+}
+.calc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+.calc-header-left h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+.calc-header-left p  { font-size: 13px; color: var(--muted); }
+.calc-total-display {
+  text-align: right;
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 16px 24px;
+  min-width: 200px;
+}
+.calc-total-label { font-size: 11px; opacity: 0.8; margin-bottom: 4px; }
+.calc-total-val { font-size: 1.8rem; font-weight: 900; }
+
+.calc-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.calc-form { display: flex; flex-direction: column; gap: 16px; }
+.calc-form label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+.calc-form select, .calc-form input { border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 14px; font-weight: 500; background: var(--card); }
+.calc-form select:focus, .calc-form input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+
+.calc-result {}
+.cost-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cost-table th { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 0; border-bottom: 2px solid var(--border); text-align: left; }
+.cost-table td { padding: 14px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+.cost-table td:last-child { text-align: right; font-weight: 700; }
+.cost-item-name  { font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.cost-item-note  { font-size: 11px; color: var(--muted); }
+.cost-total-row td { font-weight: 800; font-size: 14px; color: var(--primary); border-bottom: none; padding-top: 16px; }
+
+/* Buy Protection */
+.protection-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.protection-text h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 12px; line-height: 1.3; }
+.protection-text p  { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+.protection-stats { display: flex; gap: 24px; margin-bottom: 20px; }
+.pstat-val   { font-size: 1.3rem; font-weight: 800; color: var(--text); }
+.pstat-label { font-size: 12px; color: var(--muted); }
+.protection-img {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+.protection-img img { width: 100%; height: 240px; object-fit: cover; }
+.protection-img-caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  padding: 20px 16px 14px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  color: white;
+}
+.pimg-label { font-size: 11px; opacity: 0.8; }
+.pimg-val { font-size: 12px; font-weight: 700; }
+
+/* Loan Rates */
+.rates-section { margin-bottom: 32px; }
+.rates-section h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 6px; }
+.rates-section p  { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+.rates-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.rate-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-xs);
+}
+.rate-bank { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+.rate-val { font-size: 1.8rem; font-weight: 900; color: var(--primary); margin-bottom: 4px; }
+.rate-unit { font-size: 12px; color: var(--muted); }
+.rate-note { font-size: 11px; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+/* FAQ */
+.faq-section { margin-bottom: 40px; }
+.faq-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.faq-left h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+.faq-left p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.faq-list { display: flex; flex-direction: column; gap: 10px; }
+.faq-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.faq-item:hover { border-color: var(--primary-mid); }
+.faq-item.open { border-color: var(--primary-mid); background: var(--primary-light); }
+.faq-q {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.faq-icon { transition: transform 0.2s; color: var(--primary); }
+.faq-item.open .faq-icon { transform: rotate(180deg); }
+.faq-a { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 10px; display: none; }
+.faq-item.open .faq-a { display: block; }
+
+@media (max-width: 900px) {
+  .calc-layout, .protection-section, .faq-layout { grid-template-columns: 1fr; }
+  .quick-utils, .utils-row2 { grid-template-columns: 1fr 1fr; }
+  .rates-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 560px) {
+  .quick-utils, .utils-row2, .rates-grid { grid-template-columns: 1fr; }
+  .util-kpi { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="util-container">
+
+  <!-- Header -->
+  <div class="util-header">
+    <div class="util-breadcrumb">
+      <a href="/" style="color:var(--primary)">Trang chủ</a>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      Công cụ tiện ích
+    </div>
+    <h1>Trung Tâm Tiện Ích &<br><span class="gradient-text">Tra Cứu Ô Tô</span></h1>
+    <p>Tra cứu, kiểm tra và tính toán đầy đủ các thông tin liên quan đến ô tô tại Việt Nam. Tất cả được hỗ trợ bởi AI LuxDrive và nguồn dữ liệu thực tế từ cơ quan chức năng.</p>
+  </div>
+
+  <!-- KPI -->
+  <div class="util-kpi">
+    <div class="ukpi">
+      <div class="ukpi-icon" style="background:var(--primary-light)">
+        <svg width="22" height="22" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div>
+        <div class="ukpi-val">10.1M</div>
+        <div class="ukpi-label">Lượt tra cứu phạt nguội trong tháng</div>
+        <div class="ukpi-trend" style="color:var(--success)">↑ Cập nhật thời gian thực C.CSGT</div>
+      </div>
+    </div>
+    <div class="ukpi">
+      <div class="ukpi-icon" style="background:var(--success-light)">
+        <svg width="22" height="22" fill="none" stroke="var(--success)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <div class="ukpi-val">99.1%</div>
+        <div class="ukpi-label">Chính xác kiểm tra lịch sử ODO/thủy kích</div>
+        <div class="ukpi-trend" style="color:var(--primary)">AI Neural v4.8</div>
+      </div>
+    </div>
+    <div class="ukpi">
+      <div class="ukpi-icon" style="background:var(--info-light)">
+        <svg width="22" height="22" fill="none" stroke="var(--info)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div>
+        <div class="ukpi-val">Cập nhật 24/7</div>
+        <div class="ukpi-label">Bảo hiểm thân vỏ & Bảo hiểm dân sự</div>
+        <div class="ukpi-trend" style="color:var(--muted)">Tỷ lệ: 100% - 130%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Utilities Hub -->
+  <div class="hub-section">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div>
+        <div class="hub-section-tag">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          HỒ SƠ TỰ ĐỒNG BỘ TIỆN ÍCH ĐỘC QUYỀN
+        </div>
+        <h2>Tiện ích nhanh dành cho bạn</h2>
+        <p>Truy cập toàn bộ dịch vụ kiểm tra & tư vấn ô tô trong một nơi duy nhất.</p>
+      </div>
+      <span style="font-size:13px;font-weight:600;color:var(--primary)">Xem tất cả →</span>
+    </div>
+
+    <div class="quick-utils">
+      <a href="{{ url_for('utilities.violations') }}" style="text-decoration:none">
+        <div class="util-card">
+          <div class="util-card-icon" style="background:var(--danger-light)">
+            <svg width="22" height="22" fill="none" stroke="var(--danger)" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="util-card-title">Tra cứu phạt nguội & vi phạm</div>
+            <div class="util-card-desc">Kết nối trực tiếp Cổng CSGT và Cục Đường bộ để tra cứu vi phạm theo biển số. Cập nhật theo thời gian thực từ hơn 350 đầu camera.</div>
+            <div class="util-card-badge">Trong vòng 3 phút</div>
+          </div>
+          <div class="util-card-link">Tra cứu ngay <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+      </a>
+
+      <a href="#" style="text-decoration:none">
+        <div class="util-card">
+          <div class="util-card-icon" style="background:var(--warning-light)">
+            <svg width="22" height="22" fill="none" stroke="var(--warning)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="util-card-title">Thuê đo toa ODO & Thủy kích</div>
+            <div class="util-card-badge">Cảnh báo nếu > 15% sai lệch</div>
+          </div>
+          <div class="util-card-desc">Phân tích hình thái ECU engine và các dữ liệu thực tế từ xe để dự báo tính toàn vẹn ODO. Phát hiện xe qua lũ lụt và ngập nước.</div>
+          <div class="util-card-link">Kiểm tra ODO <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+      </a>
+
+      <a href="#" style="text-decoration:none">
+        <div class="util-card">
+          <div class="util-card-icon" style="background:var(--info-light)">
+            <svg width="22" height="22" fill="none" stroke="var(--info)" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div>
+            <div class="util-card-title">Bộ phí bảo hiểm thân vỏ xe</div>
+            <div class="util-card-badge">So sánh 12 công ty bảo hiểm</div>
+          </div>
+          <div class="util-card-desc">Tính toán và so sánh phí bảo hiểm thân vỏ từ 12 công ty bảo hiểm uy tín tại Việt Nam. Gợi ý gói phù hợp nhất theo giá trị xe thực.</div>
+          <div class="util-card-link">Tính bảo hiểm <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="utils-row2">
+      <a href="{{ url_for('utilities.plate_valuation') }}" style="text-decoration:none">
+        <div class="util-card2">
+          <div class="util-card2-icon" style="background:var(--primary-light)">
+            <svg width="18" height="18" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="util-card2-title">Định giá biển số VIP</div>
+            <div class="util-card2-sub">Phong thủy số, giá thị trường hiện tại</div>
+          </div>
+          <div class="util-card2-meta">Thử ngay →</div>
+        </div>
+      </a>
+      <a href="{{ url_for('utilities.plate_destiny') }}" style="text-decoration:none">
+        <div class="util-card2">
+          <div class="util-card2-icon" style="background:var(--warning-light)">
+            <svg width="18" height="18" fill="none" stroke="var(--warning)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="util-card2-title">Tử vi xe - Định mệnh & Phong thủy</div>
+            <div class="util-card2-sub">Xem biển số có hợp mệnh chủ không</div>
+          </div>
+          <div class="util-card2-meta">Xem ngay →</div>
+        </div>
+      </a>
+      <a href="{{ url_for('utilities.error_dictionary') }}" style="text-decoration:none">
+        <div class="util-card2">
+          <div class="util-card2-icon" style="background:var(--success-light)">
+            <svg width="18" height="18" fill="none" stroke="var(--success)" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="util-card2-title">Từ điển lỗi OBD-II</div>
+            <div class="util-card2-sub">Tra cứu mã lỗi P, C, B, U từ 500+ mã xe</div>
+          </div>
+          <div class="util-card2-meta">Tra cứu →</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Depreciation / Lăn bánh Calculator -->
+  <div class="calc-section">
+    <div class="calc-header">
+      <div class="calc-header-left">
+        <div class="hub-section-tag" style="margin-bottom:8px">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          DỰ TOÁN CHI PHÍ THỰC TẾ (NGÂN SÁCH AI)
+        </div>
+        <h2>Dự Toán Lăn Bánh & Sang Tên Đổi Chủ Xe Cũ</h2>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Tổng chi phí thực sự khi sở hữu một chiếc xe cũ, bao gồm tất cả các khoản bắt buộc và tùy chọn.</p>
+      </div>
+      <div class="calc-total-display">
+        <div class="calc-total-label">TỔNG CHI PHÍ ƯỚC TÍNH</div>
+        <div class="calc-total-val" id="totalCost">29,130,000đ</div>
+        <div style="font-size:11px;opacity:0.7;margin-top:4px">Đã bao gồm tất cả 5 khoản</div>
+      </div>
+    </div>
+
+    <div class="calc-layout">
+      <!-- Form -->
+      <div class="calc-form">
+        <div>
+          <label>Thành phố lăn bánh lần đầu</label>
+          <select id="depCity" onchange="calcCosts()">
+            <option value="hanoi">Hà Nội (Biển 30/29)</option>
+            <option value="hcm">TP. Hồ Chí Minh (Biển 51-59)</option>
+            <option value="danang">Đà Nẵng (Biển 43)</option>
+            <option value="other">Tỉnh khác</option>
+          </select>
+        </div>
+        <div>
+          <label>Dòng xe</label>
+          <select id="depBrand" onchange="loadDepModels()">
+            {% for b in brands %}<option value="{{ b }}">{{ b }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Model</label>
+          <select id="depModel">
+            {% for m in default_models %}<option value="{{ m }}">{{ m }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Năm sản xuất</label>
+          <input type="number" id="depYear" value="2020" min="2010" max="2026">
+        </div>
+        <div>
+          <label>Giá mua ban đầu (VNĐ)</label>
+          <input type="number" id="depPrice" value="1500000000" step="50000000" oninput="calcCosts()">
+        </div>
+        <button class="btn-analyze" onclick="calcDepreciation()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Tính chi tiết ngay
+        </button>
+      </div>
+
+      <!-- Costs Table -->
+      <div class="calc-result">
+        <table class="cost-table">
+          <thead>
+            <tr>
+              <th>Khoản chi</th>
+              <th style="text-align:right">Số tiền ước tính</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="cost-item-name">Phí sang tên & đổi chủ</div>
+                <div class="cost-item-note">Lệ phí hành chính tại Phòng CSGT</div>
+              </td>
+              <td>6,500,000đ</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="cost-item-name">Lệ phí trước bạ xe ô tô</div>
+                <div class="cost-item-note">Tỷ lệ 2% giá trị xe theo khung UBND Tỉnh</div>
+              </td>
+              <td id="costTruocBa">20,000,000đ</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="cost-item-name">Phí đăng kiểm định kỳ 2 năm</div>
+                <div class="cost-item-note">Theo biểu phí Cục Đăng kiểm</div>
+              </td>
+              <td>240,000đ</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="cost-item-name">Bảo hiểm TNDS bắt buộc 1 năm</div>
+                <div class="cost-item-note">Dưới 6 chỗ, theo quy định BTC</div>
+              </td>
+              <td>1,560,000đ</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="cost-item-name">Bảo hiểm thân vỏ (Tùy chọn)</div>
+                <div class="cost-item-note">Khoảng 0.8–1.2% giá trị xe mỗi năm</div>
+              </td>
+              <td id="costBaoHiem">730,000đ</td>
+            </tr>
+            <tr class="cost-total-row">
+              <td>TỔNG CHI PHÍ</td>
+              <td id="costTotal">29,130,000đ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Depreciation Timeline -->
+    <div id="depResult" style="margin-top:32px;display:none">
+      <hr class="sep">
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:20px">📊 Biến động giá theo từng năm</h3>
+      <div id="depTimeline" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+  </div>
+
+  <!-- Protection Section -->
+  <div class="protection-section">
+    <div class="protection-text">
+      <div class="hub-section-tag">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        BẢO VỆ NGƯỜI MUA TOÀN DIỆN
+      </div>
+      <h2>Bảo Vệ Người Mua Khỏi Rủi Ro Tua ODO & Thủy Kích</h2>
+      <p>LuxDrive AI phân tích hình thái dữ liệu ECU, lịch sử bảo dưỡng chính hãng và hàng nghìn điểm dữ liệu thực tế để phát hiện rủi ro che giấu ODO với độ chính xác 99.1%.</p>
+      <div class="protection-stats">
+        <div>
+          <div class="pstat-val">15,200+</div>
+          <div class="pstat-label">Xe đã qua kiểm định</div>
+        </div>
+        <div>
+          <div class="pstat-val">35,000+</div>
+          <div class="pstat-label">Gian lận ODO bị phát hiện</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--muted)">Sử dụng phương pháp phân tích thời gian lăn bánh thực tế từ ODO trung bình 50,000 km/năm.</p>
+    </div>
+    <div class="protection-img">
+      <img src="https://images.unsplash.com/photo-1537984822441-cff330075342?w=600&q=80" alt="ODO check">
+      <div class="protection-img-caption">
+        <div>
+          <div class="pimg-label">Công nghệ phân tích</div>
+          <div class="pimg-val">OBD-II Scanner AI</div>
+        </div>
+        <div style="text-align:right">
+          <div class="pimg-label">Độ chính xác</div>
+          <div class="pimg-val">99.1%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loan Rates Table -->
+  <div class="rates-section">
+    <div class="hub-section-tag" style="margin-bottom:10px">ĐỐI TÁC TÀI CHÍNH NGÂN HÀNG</div>
+    <h2>Lãi Suất Vay Mua Xe Trả Góp 2024</h2>
+    <p>Lãi suất được cập nhật trực tiếp từ 4 đối tác ngân hàng hàng đầu Việt Nam tại thời điểm hiện tại.</p>
+    <div class="rates-grid">
+      <div class="rate-card">
+        <div class="rate-bank">VCB — Vietcombank</div>
+        <div class="rate-val">4.8<span style="font-size:1rem">%</span></div>
+        <div class="rate-unit">/năm • Cố định 12 tháng đầu</div>
+        <div class="rate-note">Vay tối đa 80% giá trị xe • Thời hạn tối đa 8 năm</div>
+      </div>
+      <div class="rate-card" style="border-color:var(--primary-mid)">
+        <div class="rate-bank" style="color:var(--primary)">TCB — Techcombank</div>
+        <div class="rate-val" style="color:var(--primary)">7.4<span style="font-size:1rem">%</span></div>
+        <div class="rate-unit">/năm • Thả nổi từ năm 2</div>
+        <div class="rate-note">Duyệt trong 24h • Không cần thế chấp tài sản khác</div>
+      </div>
+      <div class="rate-card">
+        <div class="rate-bank">VPB — VPBank</div>
+        <div class="rate-val">7.9<span style="font-size:1rem">%</span></div>
+        <div class="rate-unit">/năm • Thả nổi từ năm 2</div>
+        <div class="rate-note">Cạnh tranh nhất thị trường • Không phạt trả sớm</div>
+      </div>
+      <div class="rate-card">
+        <div class="rate-bank">SHB — Shinhan Bank</div>
+        <div class="rate-val">6.5<span style="font-size:1rem">%</span></div>
+        <div class="rate-unit">/năm • Ưu đãi 18 tháng đầu</div>
+        <div class="rate-note">Phê duyệt online • Giải ngân trong ngày làm việc</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <div class="faq-layout">
+      <div class="faq-left">
+        <div class="hub-section-tag">CÂU HỎI THƯỜNG GẶP</div>
+        <h2>Cần Sang Tiền Xe Ô Tô Cũ — Bạn cần biết điều gì?</h2>
+        <p>Trả lời những câu hỏi phổ biến nhất về quy trình mua bán, sang tên và đổi chủ xe cũ tại Việt Nam theo quy định mới nhất 2024.</p>
+        <div style="margin-top:20px">
+          <a href="{{ url_for('utilities.error_dictionary') }}" class="btn-primary" style="text-decoration:none;display:inline-flex">
+            Xem từ điển lỗi xe đầy đủ →
+          </a>
+        </div>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item open" onclick="toggleFAQ(this)">
+          <div class="faq-q">
+            Hồ sơ pháp lý cần thiết để sang tên ô tô cũ gồm những gì?
+            <svg class="faq-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div class="faq-a">Hồ sơ cần gồm: (1) Giấy đăng ký xe bản gốc, (2) CMND/CCCD cả hai bên, (3) Hợp đồng mua bán công chứng hoặc có chứng nhận, (4) Tờ khai lệ phí trước bạ mẫu số 01/LPTB. Một số tỉnh có thể yêu cầu thêm giấy xác nhận không tranh chấp.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-q">
+            Làm thế nào để xác nhận xe không bị thao túng cũ?
+            <svg class="faq-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div class="faq-a">Sử dụng LuxDrive AI ODO Scanner để kết nối cổng OBD-II, đọc ECU và so sánh với dữ liệu lịch sử bảo dưỡng. Nếu sai lệch > 15% so với trung bình thị trường, hệ thống sẽ cảnh báo ngay lập tức.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-q">
+            Cách tự tính lệ phí trước bạ xe ô tô chính xác nhất?
+            <svg class="faq-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div class="faq-a">Lệ phí trước bạ = Giá tính lệ phí × Tỷ lệ (%). Giá tính lệ phí là giá xe theo khung UBND Tỉnh/TP ban hành. Tỷ lệ từ 1-2% tùy địa phương. Hà Nội áp dụng 2% cho xe dưới 1.5 tỷ. LuxDrive AI tự động tính toán theo từng khu vực.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-q">
+            Thời gian thực sự cần để hoàn thành thủ tục sang tên xe cũ là bao lâu?
+            <svg class="faq-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div class="faq-a">Thông thường mất từ 5-10 ngày làm việc cho toàn bộ quy trình: nộp hồ sơ tại CSGT (1 ngày), chờ xác nhận trước bạ (3-5 ngày), nhận biển số mới (1-2 ngày). Các dịch vụ chạy hồ sơ có thể rút ngắn xuống 2-3 ngày.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleFAQ(item) {
+  item.classList.toggle('open');
+}
+
+function calcCosts() {
+  const price = parseFloat(document.getElementById('depPrice').value) || 0;
+  const truocBa = Math.round(price * 0.02);
+  const baoHiem = Math.round(price * 0.008 / 12);
+  const total = truocBa + 6500000 + 240000 + 1560000 + baoHiem;
+  
+  const fmt = n => n.toLocaleString('vi-VN') + 'đ';
+  document.getElementById('costTruocBa').textContent = fmt(truocBa);
+  document.getElementById('costBaoHiem').textContent = fmt(baoHiem);
+  document.getElementById('costTotal').textContent = fmt(total);
+  document.getElementById('totalCost').textContent = fmt(total);
+}
+
+async function loadDepModels() {
+  const brand = document.getElementById('depBrand').value;
+  const res = await fetch(`/api/models?brand=${encodeURIComponent(brand)}`);
+  const models = await res.json();
+  document.getElementById('depModel').innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+}
+
+async function calcDepreciation() {
+  const btn = event.target;
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#fff"></div> Đang tính...';
+  const payload = {
+    brand: document.getElementById('depBrand').value,
+    model: document.getElementById('depModel').value,
+    year: document.getElementById('depYear').value,
+    original_price: document.getElementById('depPrice').value
+  };
+  try {
+    const res = await fetch('/api/depreciation', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    const timeline = document.getElementById('depTimeline');
+    const maxPrice = data.timeline[0].price;
+    timeline.innerHTML = data.timeline.map((t, i) => {
+      const pct = (t.price / maxPrice) * 100;
+      const isLast = i === data.timeline.length - 1;
+      return `<div class="fade-in" style="display:flex;align-items:center;gap:12px;animation-delay:${i*0.07}s">
+        <span style="width:50px;font-size:12px;font-weight:600;color:var(--muted)">${t.year}</span>
+        <div style="flex:1;background:var(--bg2);border-radius:6px;height:28px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${isLast?'var(--gradient-primary)':'var(--border)'};border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:700;color:${isLast?'#fff':'var(--muted)'}">
+            ${t.price_formatted}
+          </div>
+        </div>
+        <span style="width:55px;font-size:12px;font-weight:600;color:var(--danger);text-align:right">${t.lost_pct > 0 ? '-'+t.lost_pct+'%' : '—'}</span>
+      </div>`;
+    }).join('');
+    document.getElementById('depResult').style.display = 'block';
+    document.getElementById('depResult').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  } finally {
+    btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Tính chi tiết ngay`;
+  }
+}
+
+// Init cost calculation
+calcCosts();
+</script>
+{% endblock %}

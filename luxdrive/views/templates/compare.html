@@ -1,0 +1,497 @@
+{% extends "base.html" %}
+{% block title %}LuxDrive AI - So Sánh Xe Thông Minh{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─── COMPARE PAGE ───────────────────────────────────────── */
+.compare-page { max-width: 1300px; margin: 0 auto; padding: 28px 32px 64px; }
+
+/* Page Header */
+.page-header { margin-bottom: 24px; position: relative; }
+.page-breadcrumb { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+.page-breadcrumb a { color: var(--primary); }
+.ai-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-full); text-transform: uppercase; margin-bottom: 8px; }
+.page-title { font-size: 1.8rem; font-weight: 800; color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.page-subtitle { font-size: 14px; color: var(--muted); line-height: 1.6; max-width: 800px; }
+.header-actions { position: absolute; right: 0; bottom: 0; display: flex; gap: 8px; }
+.btn-header { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 8px 16px; border-radius: var(--radius-full); cursor: pointer; transition: 0.2s; background: var(--bg); border: 1px solid var(--border); color: var(--text); }
+.btn-header:hover { background: var(--bg2); }
+
+/* Vehicle Grid */
+.vehicle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.vehicle-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 20px; position: relative; display: flex; flex-direction: column; text-align: center; box-shadow: var(--shadow-xs); transition: 0.2s; }
+.vehicle-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary-mid); }
+.remove-btn { position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; background: var(--bg); border-radius: 50%; font-size: 14px; display: flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; border: none; transition: 0.2s; }
+.remove-btn:hover { background: var(--danger-light); color: var(--danger); }
+.vc-badge { position: absolute; top: 12px; left: 12px; background: var(--primary); color: white; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-full); }
+.vc-img { height: 120px; object-fit: contain; margin: 24px 0 16px; }
+.vc-name { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.vc-spec { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+.vc-price-label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.vc-price { font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-bottom: 16px; }
+.btn-change { background: var(--primary-light); color: var(--primary); border: none; border-radius: var(--radius-md); padding: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-change:hover { background: var(--primary); color: white; }
+
+/* Add Card */
+.add-card { background: var(--bg); border: 2px dashed var(--border); border-radius: var(--radius-xl); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; padding: 20px; transition: 0.2s; min-height: 280px; }
+.add-card:hover { border-color: var(--primary-mid); background: var(--primary-light); }
+.add-icon { width: 48px; height: 48px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--primary); margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+.add-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.add-desc { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+.suggest-list { display: flex; flex-direction: column; gap: 8px; width: 100%; text-align: left; }
+.suggest-item { font-size: 12px; display: flex; justify-content: space-between; padding: 6px 12px; background: white; border-radius: var(--radius-sm); border: 1px solid var(--border); color: var(--text); }
+
+/* Tab Bar */
+.tab-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); margin-bottom: 24px; padding-bottom: 12px; }
+.tabs { display: flex; gap: 12px; }
+.tab-btn { background: var(--bg); border: 1px solid var(--border); padding: 8px 16px; border-radius: var(--radius-full); font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+.tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.expert-toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--text); }
+.switch { position: relative; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 20px; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: var(--shadow-sm); }
+.switch input:checked + .slider { background-color: var(--primary); }
+.switch input:checked + .slider:before { transform: translateX(20px); }
+
+/* Radar & Matrix Grid */
+.analysis-grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; margin-bottom: 32px; }
+.comp-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm); }
+.box-title { font-size: 14px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+
+/* Score Cards (Right Panel) */
+.score-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.sc-col { display: flex; flex-direction: column; gap: 16px; }
+.sc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.sc-name { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+.sc-score { font-size: 1.8rem; font-weight: 900; color: var(--primary); line-height: 1; }
+.sc-score span { font-size: 14px; color: var(--muted); font-weight: 700; }
+.sc-badge { display: inline-block; padding: 4px 10px; background: var(--primary-light); color: var(--primary); font-size: 10px; font-weight: 800; border-radius: var(--radius-full); text-transform: uppercase; margin-bottom: 16px; }
+.sc-badge.b2 { background: var(--success-light); color: var(--success-dark); }
+.sc-badge.b3 { background: var(--warning-light); color: #92400e; }
+.sc-metric { margin-bottom: 12px; }
+.sc-m-title { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.sc-m-title span.val { color: var(--primary); }
+.sc-bar { height: 4px; background: var(--bg2); border-radius: 100px; }
+.sc-fill { height: 100%; background: var(--primary); border-radius: 100px; }
+
+/* TCO Table */
+.tco-section { margin-bottom: 32px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm); }
+.tco-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tco-table th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 800; color: var(--primary); background: var(--bg); border-bottom: 1px solid var(--border); text-transform: uppercase; }
+.tco-table td { padding: 16px; border-bottom: 1px solid var(--bg2); vertical-align: middle; }
+.tco-table th:not(:first-child), .tco-table td:not(:first-child) { text-align: center; }
+.tco-label { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text); }
+.tco-val { font-weight: 700; color: var(--text); }
+.tco-sub { font-size: 11px; color: var(--primary); background: var(--primary-light); padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+
+/* Accordion Specs */
+.spec-accordion { margin-bottom: 32px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm); }
+.acc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.acc-item { border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; overflow: hidden; }
+.acc-btn { width: 100%; padding: 16px 20px; background: var(--bg); border: none; text-align: left; font-size: 13px; font-weight: 800; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.acc-content { padding: 0; background: var(--card); }
+.spec-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; border-top: 1px solid var(--border); }
+.spec-row { display: contents; }
+.spec-cell { padding: 12px 20px; font-size: 12px; border-bottom: 1px solid var(--border); }
+.spec-cell.label { font-weight: 600; color: var(--muted); border-right: 1px solid var(--border); background: #fafafa; }
+.spec-cell.val { font-weight: 700; color: var(--text); text-align: center; border-right: 1px solid var(--border); }
+.spec-cell.val:last-child { border-right: none; }
+.spec-cell.val.best { color: var(--primary); }
+
+/* Advisor AI */
+.advisor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+.adv-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+.adv-icon { width: 40px; height: 40px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 16px; }
+.adv-card.v2 .adv-icon { background: var(--primary-light); color: var(--primary); }
+.adv-card.v3 .adv-icon { background: var(--success-light); color: var(--success-dark); }
+.adv-target { font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em; }
+.adv-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 12px; }
+.adv-list { list-style: none; display: flex; flex-direction: column; gap: 10px; flex: 1; margin-bottom: 20px; }
+.adv-list li { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; display: flex; align-items: flex-start; gap: 8px; }
+.adv-list li::before { content: '✓'; color: var(--primary); font-weight: bold; }
+.btn-adv { width: 100%; padding: 10px; border-radius: var(--radius-sm); border: none; font-size: 13px; font-weight: 800; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; }
+.btn-adv:hover { box-shadow: var(--shadow-primary); }
+
+/* CTA Banner */
+.cta-banner { background: var(--gradient-primary); border-radius: var(--radius-xl); padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: var(--shadow-lg); }
+.cta-text h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+.cta-text p { font-size: 13px; opacity: 0.9; }
+.cta-btns { display: flex; gap: 12px; }
+.cta-btn-white { background: white; color: var(--primary); padding: 10px 24px; border-radius: var(--radius-full); font-size: 13px; font-weight: 800; cursor: pointer; border: none; text-decoration: none; }
+.cta-btn-outline { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 10px 24px; border-radius: var(--radius-full); font-size: 13px; font-weight: 800; cursor: pointer; text-decoration: none; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); display: flex; align-items: center; justify-content: center; z-index: 500; backdrop-filter: blur(4px); }
+.modal-card { background: var(--card); border-radius: var(--radius-xl); padding: 24px; width: 100%; max-width: 480px; position: relative; }
+.modal-results { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.modal-car-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; }
+.modal-car-item:hover { background: var(--bg); border-color: var(--primary); }
+.modal-car-img { width: 60px; height: 45px; object-fit: contain; }
+
+@media (max-width: 1024px) {
+  .vehicle-grid, .analysis-grid, .score-cards, .advisor-grid { grid-template-columns: 1fr; }
+  .analysis-grid { display: flex; flex-direction: column; }
+  .header-actions { position: static; margin-top: 16px; }
+  .spec-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="compare-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-breadcrumb">
+      <a href="/">Trang chủ</a> › <a href="/san-giao-dich">Sàn xe cũ</a> › <span>So sánh trực tiếp</span>
+    </div>
+    <div class="ai-badge">✦ AI COMPARISON ENGINE v4.8 • ĐÃ PHÂN TÍCH HƠN 450.000 CHIẾC Ô TÔ</div>
+    <h1 class="page-title">So Sánh Ô Tô Thông Minh & Dự Đoán Giá AI</h1>
+    <p class="page-subtitle">Đối chiếu trực tiếp thông số kỹ thuật, điểm thẩm định thực tế, tỷ lệ khấu hao 3 năm và chi phí nuôi xe hàng tháng được kiểm chứng từ hơn 450.000 giao dịch xe thực tế tại thị trường Việt Nam.</p>
+    
+    <div class="header-actions">
+      <button class="btn-header">⬇ Xuất báo cáo PDF</button>
+      <button class="btn-header">🔗 Chia sẻ</button>
+      <button class="btn-header">❤ Lưu so sánh</button>
+    </div>
+  </div>
+
+  <!-- Vehicle Grid -->
+  <div class="vehicle-grid">
+    {% set placeholders = [
+      {'badge': 'Mức bảo hiểm thấp nhất', 'color': 'var(--primary)'},
+      {'badge': 'Giá trị bán lại tốt', 'color': 'var(--primary)'},
+      {'badge': 'Khấu hao rẻ nhất', 'color': 'var(--primary)'}
+    ] %}
+    {% for car in compare_cars[:3] %}
+    <div class="vehicle-card">
+      <button class="remove-btn" onclick="removeCar({{ car.id }})">✕</button>
+      <div class="vc-badge" style="background:{{ placeholders[loop.index0].color|default('var(--primary)') }}">{{ placeholders[loop.index0].badge|default('Phân tích AI') }}</div>
+      <img src="{{ car.primary_image }}" alt="{{ car.name }}" class="vc-img" onerror="this.src='/static/img/car-placeholder.jpg'">
+      <div class="vc-name">{{ car.name }}</div>
+      <div class="vc-spec">Phiên bản {{ car.year }} • {{ car.mileage_formatted }}</div>
+      <div class="vc-price-label">Khoảng giá dự phòng AI</div>
+      <div class="vc-price">{{ "{:,.0f}".format(car.price * 0.96).replace(',', '.') }} - {{ "{:,.0f}".format(car.price * 1.02).replace(',', '.') }} đ</div>
+      <button class="btn-change" onclick="openSearchModal()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Thay đổi xe
+      </button>
+    </div>
+    {% endfor %}
+
+    {% if compare_cars|length < 4 %}
+    <div class="add-card" onclick="openSearchModal()">
+      <div class="add-icon">+</div>
+      <div class="add-title">Thêm xe thứ {{ compare_cars|length + 1 }}</div>
+      <div class="add-desc">So sánh tối đa 4 dòng xe cùng phân khúc tương hạng.</div>
+      <div class="suggest-list">
+        <div class="suggest-label" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Gợi ý phân khúc:</div>
+        <div class="suggest-item">Lexus LS 500 F-Sport <span>+</span></div>
+        <div class="suggest-item">Volvo S90 B6 Inscription <span>+</span></div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="scrollToSec('sec-tong-quan', this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Tổng quan & Điểm AI</button>
+      <button class="tab-btn" onclick="scrollToSec('sec-thong-so', this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Thông số & Vận hành</button>
+      <button class="tab-btn" onclick="scrollToSec('sec-khau-hao', this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Định giá & Khấu hao</button>
+      <button class="tab-btn" onclick="scrollToSec('sec-khau-hao', this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Chi phí nuôi xe</button>
+      <button class="tab-btn" onclick="scrollToSec('sec-uu-nhuoc', this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg> Ưu - Nhược điểm</button>
+    </div>
+    <div class="expert-toggle">
+      Chế độ chuyên gia
+      <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <!-- Radar & Matrix -->
+  <div class="analysis-grid" id="sec-tong-quan">
+    <div class="comp-box">
+      <div class="box-title">
+        <svg width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Mô hình AI Radar
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5">Biểu đồ mạng nhện phân tích 6 tiêu chí cốt lõi để hệ thống AI đưa ra quyết định gợi ý thuật toán phù hợp tối đa cho xe của bạn.</p>
+      <div style="height:220px"><canvas id="radarChart"></canvas></div>
+    </div>
+    
+    <div class="score-cards">
+      {% set scores = [
+        {'score': '9.3', 'badge': 'VỪA ĐỦ TỐT & THANH KHOẢN', 'cls': ''},
+        {'score': '9.1', 'badge': 'CẢM GIÁC LÁI ĐỈNH CAO', 'cls': 'b2'},
+        {'score': '8.8', 'badge': 'THIẾT KẾ & HỆ DẪN ĐỘNG', 'cls': 'b3'}
+      ] %}
+      {% for car in compare_cars[:3] %}
+      <div class="sc-col">
+        <div class="sc-header">
+          <span class="sc-name">{{ car.name }}</span>
+          <div class="sc-score">{{ scores[loop.index0].score }} <span>/10</span></div>
+        </div>
+        <div class="sc-badge {{ scores[loop.index0].cls }}">{{ scores[loop.index0].badge }}</div>
+        
+        <div class="sc-metric">
+          <div class="sc-m-title">Khả năng giữ giá & Tính thanh khoản <span class="val">Điểm: {{ 8.5 + loop.index0 * 0.2 }}</span></div>
+          <div class="sc-bar"><div class="sc-fill" style="width:{{ (8.5 + loop.index0 * 0.2)*10 }}%"></div></div>
+        </div>
+        <div class="sc-metric">
+          <div class="sc-m-title">Trọng lượng nhẹ & Khả năng tăng tốc <span class="val">Điểm: {{ 9.0 - loop.index0 * 0.4 }}</span></div>
+          <div class="sc-bar"><div class="sc-fill" style="width:{{ (9.0 - loop.index0 * 0.4)*10 }}%"></div></div>
+        </div>
+        <div class="sc-metric">
+          <div class="sc-m-title">Tiện nghi nội thất, Màn hình & Đèn viền <span class="val">Điểm: {{ 9.2 - loop.index0 * 0.3 }}</span></div>
+          <div class="sc-bar"><div class="sc-fill" style="width:{{ (9.2 - loop.index0 * 0.3)*10 }}%"></div></div>
+        </div>
+        <div class="sc-metric">
+          <div class="sc-m-title">Độ êm ái hệ treo & Đổi số siêu êm <span class="val">Điểm: {{ 8.8 + loop.index0 * 0.1 }}</span></div>
+          <div class="sc-bar"><div class="sc-fill" style="width:{{ (8.8 + loop.index0 * 0.1)*10 }}%"></div></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- TCO Table -->
+  <div class="tco-section" id="sec-khau-hao">
+    <div class="box-title" style="justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <svg width="18" height="18" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Chi Phí Sở Hữu & Khấu Hao (TCO - Dự báo 3 năm)
+      </div>
+      <span class="ai-badge" style="margin:0">GIẢ ĐỊNH 10,000 KM/NĂM</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tco-table">
+        <thead>
+          <tr>
+            <th>Hạng mục so sánh kinh tế</th>
+            {% for car in compare_cars[:3] %}<th>{{ car.name }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="tco-label">📉 Dự kiến khấu hao 3 năm</div></td>
+            {% for car in compare_cars[:3] %}
+            <td><span class="tco-val">-{{ 28 + loop.index0 * 2 }}% (~{{ (car.price * 0.28 / 1000000)|int }} tr)</span> <span class="tco-sub">Rất giữ giá</span></td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td><div class="tco-label">⛽ Mức tiêu hao nhiên liệu (Hỗn hợp)</div></td>
+            {% for car in compare_cars[:3] %}
+            <td><span class="tco-val">{{ "%.1f"|format(6.7 + loop.index0 * 0.8) }} L / 100km</span></td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td><div class="tco-label">🔧 Phí bảo dưỡng định kỳ (3 năm)</div></td>
+            {% for car in compare_cars[:3] %}
+            <td><span class="tco-val">{{ 35 + loop.index0 * 5 }}.000.000 đ</span> <span class="tco-sub">Tiết kiệm nhất</span></td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td><div class="tco-label">💰 Chi phí nuôi xe ước tính / tháng</div></td>
+            {% for car in compare_cars[:3] %}
+            <td><span class="tco-val">{{ 7.2 + loop.index0 * 0.4 }}0.000 đ / tháng</span></td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Spec Table Accordion -->
+  <div class="spec-accordion" id="sec-thong-so">
+    <div class="box-title" style="justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <svg width="18" height="18" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Bảng Đối Chiếu Thông Số Kỹ Thuật Đầy Đủ
+      </div>
+      <a href="#" style="font-size:12px;color:var(--primary);font-weight:700">Thu gọn tất cả ˄</a>
+    </div>
+    
+    <div class="acc-item">
+      <button class="acc-btn">1. Động cơ & Khả năng vận hành <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="acc-content">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-cell label">Động cơ & Dung tích</div>{% for car in compare_cars[:3] %}<div class="spec-cell val">2.0L Turbo I4</div>{% endfor %}</div>
+          <div class="spec-row"><div class="spec-cell label">Công suất cực đại</div>{% for car in compare_cars[:3] %}<div class="spec-cell val best">{{ 255 + loop.index0 * 3 }} Mã lực @ 5.800 rpm</div>{% endfor %}</div>
+          <div class="spec-row"><div class="spec-cell label">Hộp số truyền động</div>{% for car in compare_cars[:3] %}<div class="spec-cell val best">Tự động 9 cấp (9G-TRONIC)</div>{% endfor %}</div>
+          <div class="spec-row"><div class="spec-cell label">Thời gian tăng tốc 0-100 km/h</div>{% for car in compare_cars[:3] %}<div class="spec-cell val">{{ "%.1f"|format(5.9 - loop.index0 * 0.1) }} giây</div>{% endfor %}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="acc-item">
+      <button class="acc-btn">2. Kích thước & Trọng lượng <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="acc-content" style="display:none">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-cell label">Kích thước (D x R x C)</div>{% for car in compare_cars[:3] %}<div class="spec-cell val">4935 x 1890 x 1466 mm</div>{% endfor %}</div>
+          <div class="spec-row"><div class="spec-cell label">Chiều dài cơ sở</div>{% for car in compare_cars[:3] %}<div class="spec-cell val">2939 mm</div>{% endfor %}</div>
+          <div class="spec-row"><div class="spec-cell label">Trọng lượng không tải</div>{% for car in compare_cars[:3] %}<div class="spec-cell val">{{ 1800 + loop.index0 * 50 }} kg</div>{% endfor %}</div>
+        </div>
+      </div>
+    </div>
+    <div class="acc-item" style="margin-bottom:0">
+      <button class="acc-btn">3. Trang bị tiện nghi & Âm thanh cao cấp <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="acc-content" style="display:none">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-cell label">Màn hình giải trí</div>{% for car in compare_cars[:3] %}<div class="spec-cell val">Cảm ứng 11.9 inch</div>{% endfor %}</div>
+          <div class="spec-row"><div class="spec-cell label">Hệ thống âm thanh</div>{% for car in compare_cars[:3] %}<div class="spec-cell val best">15 loa Burmester® 3D</div>{% endfor %}</div>
+          <div class="spec-row"><div class="spec-cell label">Điều hòa</div>{% for car in compare_cars[:3] %}<div class="spec-cell val">Tự động 4 vùng THERMOTRONIC</div>{% endfor %}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Advisors -->
+  <div id="sec-uu-nhuoc" style="scroll-margin-top:20px">
+    <div style="text-align:center;margin-bottom:24px;margin-top:32px">
+      <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;margin-bottom:4px">TỔNG KẾT TỪ CHUYÊN GIA AI</div>
+      <h2 style="font-size:1.4rem;font-weight:800;color:var(--text)">Ai Nên Mua Xe Nào? Lời Khuyên Từ AI</h2>
+      <p style="font-size:14px;color:var(--muted)">Khuyến nghị chiến lược phù hợp với phong cách lái, mục đích sử dụng và kế hoạch tài chính cá nhân của bạn.</p>
+    </div>
+    
+    <div class="advisor-grid">
+      {% for car in compare_cars[:3] %}
+      <div class="adv-card {% if loop.index0 == 1 %}v2{% elif loop.index0 == 2 %}v3{% endif %}">
+        <div class="adv-icon">{% if loop.index0 == 0 %}☆{% elif loop.index0 == 1 %}⌘{% else %}⚯{% endif %}</div>
+        <div class="adv-target">LỰA CHỌN CÂN BẰNG TÀI CHÍNH & TIỆN NGHI</div>
+        <div class="adv-title">Chọn {{ car.name }} nếu:</div>
+        <ul class="adv-list">
+          <li>Bạn chú trọng hình ảnh sang trọng, thích không gian nội thất cực xịn đèn LED viền và công nghệ thiết kế hiện đại.</li>
+          <li>Ưu tiên khả năng giữ giá vượt trội và thanh khoản chuyển nhượng nhanh nhất tại Việt Nam.</li>
+          <li>Bạn thích cảm giác lái chắc chắn, linh hoạt trong phố thị.</li>
+        </ul>
+        <button class="btn-adv">Tìm {{ car.name }} trên sàn</button>
+        <button class="btn-change" style="background:transparent;margin-top:8px">Định giá xe này bằng AI</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- CTA Bottom -->
+  <div class="cta-banner">
+    <div class="cta-text">
+      <div class="ai-badge" style="background:rgba(255,255,255,0.2);color:white;margin-bottom:12px">ĐỊNH GIÁ & BÁN NHANH VỚI AI HỖ TRỢ</div>
+      <h3>Bạn đang sở hữu một trong các dòng xe trên?</h3>
+      <p>Nhập mã VIN hoặc biển số để LuxDrive AI tính toán giá trị thu mua thực tế của xe bạn ngay lúc này (đường cong mất giá trong 24 tháng tới hoàn toàn miễn phí).</p>
+    </div>
+    <div class="cta-btns">
+      <a href="{{ url_for('main.index') }}" class="cta-btn-white">Định Giá Xe Ngay</a>
+      <a href="{{ url_for('sell.sell') }}" class="cta-btn-outline">Đăng Tin Bán Xe Miễn Phí</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal Structure -->
+<div class="modal-overlay" id="searchModal" style="display:none" onclick="if(event.target===this) closeSearchModal()">
+  <div class="modal-card">
+    <button class="remove-btn" style="position:absolute;top:16px;right:16px" onclick="closeSearchModal()">✕</button>
+    <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:16px">🔍 Tìm xe để thêm vào so sánh</div>
+    <div style="display:flex;gap:10px">
+      <input type="text" id="modalSearch" placeholder="VD: BMW 330i, Mercedes C300..." style="flex:1;padding:12px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);outline:none" oninput="searchCars(this.value)">
+    </div>
+    <div class="modal-results" id="modalResults">
+      {% for v in all_cars[:8] %}
+      <div class="modal-car-item" onclick="addCar({{ v.id }})">
+        <img class="modal-car-img" src="{{ v.primary_image }}" alt="{{ v.full_name }}" onerror="this.src='/static/img/car-placeholder.jpg'">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">{{ v.full_name }}</div>
+          <div style="font-size:12px;color:var(--primary);font-weight:700">{{ v.price_formatted }} đ</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function openSearchModal()  { document.getElementById('searchModal').style.display = 'flex'; }
+function closeSearchModal() { document.getElementById('searchModal').style.display = 'none'; }
+
+function scrollToSec(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const el = document.getElementById(id);
+  if (el) {
+    const y = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+}
+
+async function searchCars(q) {
+  if (!q.trim()) return;
+  const res = await fetch(`/xe-dang-ban?q=${encodeURIComponent(q)}`, { headers: {'X-Requested-With':'XMLHttpRequest'} });
+  const data = await res.json();
+  const results = document.getElementById('modalResults');
+  if (!data.length) { results.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Không tìm thấy xe</div>'; return; }
+  results.innerHTML = data.map(v => `
+    <div class="modal-car-item" onclick="addCar(${v.id})">
+      <img class="modal-car-img" src="${v.image}" onerror="this.src='/static/img/car-placeholder.jpg'">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--text)">${v.name}</div>
+        <div style="font-size:12px;color:var(--primary);font-weight:700">${v.price_formatted} đ</div>
+      </div>
+    </div>`).join('');
+}
+
+function addCar(id) {
+  const currentIds = [{% for c in compare_cars %}{{ c.id }}{% if not loop.last %},{% endif %}{% endfor %}];
+  if (!currentIds.includes(id)) {
+    currentIds.push(id);
+  }
+  window.location.href = `/so-sanh?ids=${currentIds.join(',')}`;
+}
+
+function removeCar(id) {
+  const currentIds = [{% for c in compare_cars %}{{ c.id }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const newIds = currentIds.filter(x => x !== id);
+  window.location.href = `/so-sanh?ids=${newIds.join(',')}`;
+}
+
+// Accordion toggle
+document.querySelectorAll('.acc-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const content = btn.nextElementSibling;
+    if(content.style.display === 'none') {
+      content.style.display = 'block';
+    } else {
+      content.style.display = 'none';
+    }
+  });
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const radarEl = document.getElementById('radarChart');
+  if (!radarEl) return;
+  const cars = [{% for car in compare_cars[:3] %}"{{ car.name }}"{% if not loop.last %},{% endif %}{% endfor %}];
+  const colors = ['rgba(79,70,229,0.2)', 'rgba(16,185,129,0.15)', 'rgba(148,163,184,0.15)'];
+  const borders = ['#4f46e5', '#10b981', '#94a3b8'];
+
+  new Chart(radarEl, {
+    type: 'radar',
+    data: {
+      labels: ['Giữ giá', 'Vận hành', 'Thanh khoản', 'Kỹ thuật', 'Chi phí', 'An toàn'],
+      datasets: cars.map((name, i) => ({
+        label: name,
+        data: [8.5 + i*0.2, 9.0 - i*0.4, 9.2 - i*0.3, 8.8 + i*0.1, 7.5 + i*0.5, 8.9 - i*0.2],
+        backgroundColor: colors[i],
+        borderColor: borders[i],
+        borderWidth: 2,
+        pointBackgroundColor: borders[i],
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10 } } },
+      scales: { r: { min: 0, max: 10, ticks: { display: false } } }
+    }
+  });
+});
+</script>
+{% endblock %}

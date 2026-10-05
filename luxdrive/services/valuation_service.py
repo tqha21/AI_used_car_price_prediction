@@ -277,5 +277,7 @@ class ValuationService:
             'is_positive':     diff_val >= 0,
             'source':          'rule_based',
             'volatility':      volatility,
-            'shap_insights':   shap_insights
+            'shap_insights':   shap_insights,
+            'base_price':      base_price,
+            'base_price_formatted': f"{int(base_price):,} đ".replace(',', '.')
         }

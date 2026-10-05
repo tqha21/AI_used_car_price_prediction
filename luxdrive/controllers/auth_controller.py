@@ -52,25 +52,27 @@ def login():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
-    errors = {}
+    error = None
     form   = {}
     if request.method == 'POST':
         form = {k: request.form.get(k, '').strip() for k in
-                ('full_name', 'email', 'phone', 'password', 'confirm', 'role')}
-        if not form['full_name']:
-            errors['full_name'] = 'Vui lòng nhập họ và tên.'
-        if not form['email'] or '@' not in form['email']:
-            errors['email'] = 'Email không hợp lệ.'
+                ('first_name', 'last_name', 'email', 'phone', 'password', 'confirm_password', 'role')}
+        full_name = f"{form['last_name']} {form['first_name']}".strip()
+        if not full_name:
+            error = 'Vui lòng nhập đầy đủ họ và tên.'
+        elif not form['email'] or '@' not in form['email']:
+            error = 'Email không hợp lệ.'
         elif User.query.filter_by(email=form['email'].lower()).first():
-            errors['email'] = 'Email này đã được đăng ký.'
-        if len(form['password']) < 6:
-            errors['password'] = 'Mật khẩu ít nhất 6 ký tự.'
-        if form['password'] != form['confirm']:
-            errors['confirm'] = 'Mật khẩu xác nhận không khớp.'
-        if not errors:
+            error = 'Email này đã được đăng ký.'
+        elif len(form['password']) < 6:
+            error = 'Mật khẩu ít nhất 6 ký tự.'
+        elif form['password'] != form['confirm_password']:
+            error = 'Mật khẩu xác nhận không khớp.'
+        
+        if not error:
             role = 'seller' if form['role'] == 'seller' else 'buyer'
             user = User(
-                full_name=form['full_name'],
+                full_name=full_name,
                 email=form['email'].lower(),
                 phone=form['phone'],
                 role=role,
@@ -91,7 +93,7 @@ def register():
             login_user(user)
             flash('✅ Đăng ký thành công!', 'success')
             return redirect(url_for('main.index'))
-    return render_template('auth/register.html', errors=errors, form=form)
+    return render_template('auth/register.html', error=error, form=form)
 
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():

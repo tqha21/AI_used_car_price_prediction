@@ -1,0 +1,37 @@
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <span>LuxDrive<span>.</span>AI</span>
+        </div>
+        <div class="subtitle">ENTERPRISE ENGINE</div>
+    </div>
+    
+    <div class="sidebar-nav-title">PORTAL QUẢN TRỊ</div>
+    <nav class="sidebar-nav">
+        <a href="{{ url_for('admin.dashboard') }}" class="nav-item {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+            <i class="fa-solid fa-layer-group"></i> Tổng quan hệ thống
+        </a>
+        <a href="{{ url_for('admin.moderation') }}" class="nav-item {% if request.endpoint == 'admin.moderation' %}active{% elif request.endpoint == 'admin.dashboard' %}highlight-gray{% endif %}">
+            <i class="fa-solid fa-check-double"></i> Kiểm duyệt & Định giá AI
+        </a>
+        <a href="{{ url_for('admin.users') }}" class="nav-item {% if request.endpoint == 'admin.users' %}active{% endif %}">
+            <i class="fa-solid fa-users"></i> Người dùng & Showroom
+        </a>
+        <a href="{{ url_for('admin.ai_monitoring') }}" class="nav-item {% if request.endpoint == 'admin.ai_monitoring' %}active{% endif %}">
+            <i class="fa-solid fa-microchip"></i> Giám sát mô hình AI
+        </a>
+        <a href="{{ url_for('admin.reports') }}" class="nav-item {% if request.endpoint == 'admin.reports' %}active{% endif %}">
+            <i class="fa-solid fa-chart-line"></i> Báo cáo & Doanh thu
+        </a>
+        <a href="{{ url_for('admin.settings') }}" class="nav-item {% if request.endpoint == 'admin.settings' %}active{% endif %}">
+            <i class="fa-solid fa-gear"></i> Cấu hình hệ thống
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="cluster-status">
+            <div class="cluster-title">Cluster: AP-SE-1 <span class="status-dot"></span></div>
+            <div class="cluster-desc">Tải tính toán: 24.8% • ms: 112ms</div>
+        </div>
+    </div>
+</aside>

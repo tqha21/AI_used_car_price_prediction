@@ -150,9 +150,9 @@
     <p class="page-subtitle">Đối chiếu trực tiếp thông số kỹ thuật, điểm thẩm định thực tế, tỷ lệ khấu hao 3 năm và chi phí nuôi xe hàng tháng được kiểm chứng từ hơn 450.000 giao dịch xe thực tế tại thị trường Việt Nam.</p>
     
     <div class="header-actions">
-      <button class="btn-header">⬇ Xuất báo cáo PDF</button>
-      <button class="btn-header">🔗 Chia sẻ</button>
-      <button class="btn-header">❤ Lưu so sánh</button>
+      <button class="btn-header" onclick="window.print()">⬇ Xuất báo cáo PDF</button>
+      <button class="btn-header" onclick="navigator.clipboard.writeText(window.location.href); alert('Đã sao chép liên kết vào clipboard!');">🔗 Chia sẻ</button>
+      <button class="btn-header" onclick="alert('Đã lưu kết quả so sánh!')">❤ Lưu so sánh</button>
     </div>
   </div>
 

@@ -15,7 +15,7 @@ def payment_page(vehicle_id):
     return render_template('payment.html',
         vehicle=vehicle,
         fee=fee,
-        total=vehicle.price + fee,
+        total=fee, # User only pays the deposit (fee)
         active_nav=''
     )
 
@@ -29,7 +29,7 @@ def process_payment(vehicle_id):
     txn = Transaction(
         user_id=current_user.id,
         vehicle_id=vehicle.id,
-        amount=vehicle.price,
+        amount=fee, # User only pays the deposit (fee), not the full car price
         fee=fee,
         method=method,
         status='escrow_locked', # Trạng thái ký quỹ chờ xử lý
@@ -41,8 +41,12 @@ def process_payment(vehicle_id):
     vehicle.status = 'pending'
     
     # 3. Gửi thông báo cho Admin (Real-time SocketIO)
+    from models.user import User
+    admin = User.query.filter_by(role='admin').first()
+    admin_id = admin.id if admin else current_user.id
+
     admin_notif = Notification(
-        user_id=1, # Giả định ID 1 là Admin
+        user_id=admin_id, # Fetch actual Admin ID
         title='🚨 Giao dịch Ký quỹ mới!',
         message=f'User {current_user.full_name} vừa ký quỹ {fee:,.0f}đ cho xe {vehicle.full_name}.',
         notif_type='warning'
@@ -53,7 +57,7 @@ def process_payment(vehicle_id):
         'title': admin_notif.title,
         'message': admin_notif.message,
         'type': admin_notif.notif_type
-    }, room='admin')
+    }, room=f'user_{admin_id}')
 
     # 4. Gửi thông báo cho Người bán (Real-time SocketIO)
     if vehicle.user_id:

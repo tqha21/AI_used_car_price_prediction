@@ -43,9 +43,19 @@ def sell():
         form_data['brand']        = request.form.get('brand', form_data['brand'])
         form_data['model']        = request.form.get('model', form_data['model'])
         form_data['year']         = int(request.form.get('year', form_data['year']))
-        form_data['mileage']      = int(request.form.get('mileage', form_data['mileage']) or 0)
+        
+        raw_mileage = request.form.get('mileage', str(form_data['mileage']))
+        if isinstance(raw_mileage, str):
+            raw_mileage = raw_mileage.replace(',', '').replace('.', '')
+        form_data['mileage'] = int(raw_mileage) if raw_mileage else 0
+        
         form_data['description']  = request.form.get('description', '')
-        form_data['price']        = request.form.get('price', '')
+        
+        raw_price = request.form.get('price', '')
+        if isinstance(raw_price, str):
+            raw_price = raw_price.replace(',', '').replace('.', '')
+        form_data['price'] = raw_price
+        
         form_data['fuel_type']    = request.form.get('fuel', 'Xăng')
         form_data['transmission'] = request.form.get('transmission', 'Tự động')
         form_data['color']        = request.form.get('color', 'Trắng')
@@ -124,8 +134,12 @@ def sell():
                 db.session.commit()
                 flash('📝 Tin đăng đã được lưu vào bản nháp!', 'success')
             else:
+                from models.user import User
+                admin = User.query.filter_by(role='admin').first()
+                admin_id = admin.id if admin else current_user.id
+                
                 admin_notif = Notification(
-                    user_id=1,
+                    user_id=admin_id,
                     title='🔔 Có tin đăng mới!',
                     message=f"Xe {v.brand} {v.model} đang chờ duyệt.",
                     notif_type='info'
@@ -142,7 +156,7 @@ def sell():
                 try:
                     socketio.emit('new_notification',
                         {'title': admin_notif.title, 'message': admin_notif.message, 'type': 'info'},
-                        room='user_1')
+                        room=f'user_{admin_id}')
                     socketio.emit('new_notification',
                         {'title': seller_notif.title, 'message': seller_notif.message, 'type': 'success'},
                         room=f'user_{current_user.id}')

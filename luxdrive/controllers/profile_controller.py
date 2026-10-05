@@ -44,7 +44,9 @@ def profile():
     return render_template('profile.html',
         active_nav='ho_so',
         user=user_info,
-        my_cars=my_cars
+        my_cars=my_cars,
+        my_listings=my_cars,
+        listings_count=len(my_cars)
     )
 
 @profile_bp.route('/api/vehicles/<int:vid>/hide', methods=['PATCH'])

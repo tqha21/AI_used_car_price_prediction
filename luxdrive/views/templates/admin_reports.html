@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxDrive AI - Báo Cáo & Doanh Thu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        
+        .report-card.highlight {
+            background: linear-gradient(135deg, var(--primary-blue), #7e22ce);
+            color: white;
+            border: none;
+        }
+        
+        .report-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .report-card-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .report-card:not(.highlight) .report-card-title {
+            color: var(--text-muted);
+        }
+        
+        .report-card-val {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .trend-badge.up {
+            background-color: var(--green);
+            color: white;
+        }
+        .report-card:not(.highlight) .trend-badge.up {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        {% include 'admin_sidebar.html' %}
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm giao dịch, mã hóa đơn...">
+                </div>
+                
+                <div class="topbar-actions">
+                    <a href="{{ url_for('admin.export_report') }}" class="btn btn-outline"><i class="fa-solid fa-file-export"></i> Xuất dữ liệu (CSV)</a>
+                    <div class="user-profile">
+                        <img src="https://i.pravatar.cc/150?img=11" alt="User Avatar">
+                        <div class="user-info">
+                            <div class="user-name">Nguyễn Văn Admin</div>
+                            <div class="user-role">Super Admin</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Báo Cáo & Doanh Thu</h1>
+                        <p class="subtitle">Thống kê doanh thu từ các nguồn: Phí niêm yết VIP, định giá AI nâng cao và hoa hồng đối tác.</p>
+                    </div>
+                    <div class="time-filters">
+                        <button>Hôm nay</button>
+                        <button>Tuần này</button>
+                        <button class="active">Tháng 9</button>
+                        <button>Năm 2024</button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="report-grid">
+                    <div class="report-card highlight">
+                        <div class="report-card-header">
+                            <span class="report-card-title">TỔNG DOANH THU THÁNG</span>
+                            <div style="background: rgba(255,255,255,0.2); width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:8px;"><i class="fa-solid fa-wallet"></i></div>
+                        </div>
+                        <div class="report-card-val">425,500,000 ₫</div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span class="trend-badge up"><i class="fa-solid fa-arrow-trend-up"></i> +18.2%</span>
+                            <span style="font-size: 13px; opacity: 0.9;">So với tháng trước</span>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card">
+                        <div class="report-card-header">
+                            <span class="report-card-title">GIAO DỊCH THÀNH CÔNG</span>
+                            <div class="icon cyan-light" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--cyan);"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                        </div>
+                        <div class="report-card-val">1,284 <span style="font-size:16px; color:var(--text-muted); font-weight:500;">lượt</span></div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span class="trend-badge up"><i class="fa-solid fa-arrow-trend-up"></i> +5.4%</span>
+                            <span style="font-size: 13px; color: var(--text-muted);">Tỷ lệ chuyển đổi: 92%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card">
+                        <div class="report-card-header">
+                            <span class="report-card-title">PHÍ TRUNG BÌNH / ĐƠN</span>
+                            <div class="icon purple-light" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--purple);"><i class="fa-solid fa-chart-pie"></i></div>
+                        </div>
+                        <div class="report-card-val">331,386 ₫</div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span class="trend-badge up" style="background:var(--gray-light); color:var(--text-main);"><i class="fa-solid fa-minus"></i> 0.0%</span>
+                            <span style="font-size: 13px; color: var(--text-muted);">Duy trì ổn định</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-row">
+                    <!-- Main Chart -->
+                    <div class="chart-card main-chart">
+                        <div class="chart-header">
+                            <div>
+                                <h2>Biểu Đồ Doanh Thu & Lượng Giao Dịch</h2>
+                                <p>Thống kê trong 30 ngày gần nhất</p>
+                            </div>
+                        </div>
+                        <div class="chart-area-placeholder" style="height: 200px;">
+                            <div class="mock-bars">
+                                <div class="bar" style="height: 30%"></div>
+                                <div class="bar" style="height: 45%"></div>
+                                <div class="bar" style="height: 60%"></div>
+                                <div class="bar" style="height: 55%"></div>
+                                <div class="bar" style="height: 80%"></div>
+                                <div class="bar" style="height: 70%"></div>
+                                <div class="bar active" style="height: 95%"></div>
+                            </div>
+                            <div class="mock-line">
+                                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                                    <path d="M0 35 Q 15 25, 30 20 T 50 15 T 70 10 T 85 12 T 100 5" fill="none" stroke="var(--primary-blue)" stroke-width="2"/>
+                                    <circle cx="0" cy="35" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="15" cy="25" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="30" cy="20" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="50" cy="15" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="70" cy="10" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="85" cy="12" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="100" cy="5" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="chart-legend" style="justify-content:center; margin-top:16px;">
+                            <div><span class="legend-color purple"></span> Lượt giao dịch (Cột)</div>
+                            <div><span class="legend-line blue"></span> Tổng doanh thu (Đường thẳng)</div>
+                        </div>
+                    </div>
+
+                    <!-- Donut Chart (Source) -->
+                    <div class="chart-card donut-chart">
+                        <div class="chart-header">
+                            <div>
+                                <h2>Cơ Cấu Nguồn Thu</h2>
+                            </div>
+                        </div>
+                        <div class="donut-area" style="height: 140px; margin-top: 20px;">
+                            <div class="mock-donut">
+                                <div class="donut-center">
+                                    <div class="val" style="font-size:18px;">100%</div>
+                                </div>
+                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                  <path class="circle blue" stroke-dasharray="65, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                  <path class="circle cyan" stroke-dasharray="25, 100" stroke-dashoffset="-65" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                  <path class="circle purple" stroke-dasharray="10, 100" stroke-dashoffset="-90" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="donut-legend" style="margin-top:24px;">
+                            <div class="legend-item" style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="display:flex; align-items:center; gap:8px;"><span class="dot blue"></span> Niêm yết VIP</span> <strong>65%</strong></div>
+                            <div class="legend-item" style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="display:flex; align-items:center; gap:8px;"><span class="dot cyan"></span> Định giá AI Nâng cao</span> <strong>25%</strong></div>
+                            <div class="legend-item" style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="display:flex; align-items:center; gap:8px;"><span class="dot purple"></span> Khác</span> <strong>10%</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Table -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <div class="title-area">
+                            <h2>Lịch Sử Giao Dịch Gần Đây</h2>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border-color); text-align: left; color: var(--text-muted); font-size: 12px;">
+                                    <th style="padding: 16px;">MÃ GIAO DỊCH</th>
+                                    <th style="padding: 16px;">KHÁCH HÀNG</th>
+                                    <th style="padding: 16px;">SỐ TIỀN</th>
+                                    <th style="padding: 16px;">PHƯƠNG THỨC</th>
+                                    <th style="padding: 16px;">THỜI GIAN</th>
+                                    <th style="padding: 16px;">TRẠNG THÁI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 1px solid var(--border-color);">
+                                    <td style="padding: 16px; font-weight:600;">TXN-88192A</td>
+                                    <td style="padding: 16px;">Showroom Auto Vương</td>
+                                    <td style="padding: 16px; font-weight:600; color:var(--green);">+ 1,500,000 ₫</td>
+                                    <td style="padding: 16px;"><span style="background:var(--blue-light); color:var(--primary-blue); padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">VNPAY-QR</span></td>
+                                    <td style="padding: 16px; color:var(--text-muted); font-size:13px;">10 phút trước</td>
+                                    <td style="padding: 16px;"><span style="color:var(--green); font-weight:500;"><i class="fa-solid fa-check-circle"></i> Thành công</span></td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid var(--border-color);">
+                                    <td style="padding: 16px; font-weight:600;">TXN-88191B</td>
+                                    <td style="padding: 16px;">Nguyễn Thành Nam</td>
+                                    <td style="padding: 16px; font-weight:600; color:var(--green);">+ 250,000 ₫</td>
+                                    <td style="padding: 16px;"><span style="background:var(--blue-light); color:var(--primary-blue); padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">ATM / Nội địa</span></td>
+                                    <td style="padding: 16px; color:var(--text-muted); font-size:13px;">1 giờ trước</td>
+                                    <td style="padding: 16px;"><span style="color:var(--green); font-weight:500;"><i class="fa-solid fa-check-circle"></i> Thành công</span></td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid var(--border-color);">
+                                    <td style="padding: 16px; font-weight:600;">TXN-88190C</td>
+                                    <td style="padding: 16px;">Trần Lê Auto</td>
+                                    <td style="padding: 16px; font-weight:600; color:var(--text-main);">5,000,000 ₫</td>
+                                    <td style="padding: 16px;"><span style="background:var(--blue-light); color:var(--primary-blue); padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">Visa / Master</span></td>
+                                    <td style="padding: 16px; color:var(--text-muted); font-size:13px;">3 giờ trước</td>
+                                    <td style="padding: 16px;"><span style="color:var(--red); font-weight:500;"><i class="fa-solid fa-xmark-circle"></i> Bị từ chối</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

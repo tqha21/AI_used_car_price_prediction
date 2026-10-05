@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxDrive AI - Người Dùng & Showroom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        {% include 'admin_sidebar.html' %}
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm người dùng, email, số điện thoại...">
+                </div>
+                
+                <div class="topbar-actions">
+                    <div class="user-profile">
+                        <img src="https://i.pravatar.cc/150?img=11" alt="User Avatar">
+                        <div class="user-info">
+                            <div class="user-name">Nguyễn Văn Admin</div>
+                            <div class="user-role">Super Admin</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Người Dùng & Showroom</h1>
+                        <p class="subtitle">Quản lý danh sách thành viên, cấp quyền VIP và đối tác Showroom.</p>
+                    </div>
+                </div>
+
+                <div class="table-section">
+                    <div class="table-responsive">
+                        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border-color); text-align: left; color: var(--text-muted); font-size: 12px;">
+                                    <th style="padding: 16px;">THÔNG TIN NGƯỜI DÙNG</th>
+                                    <th style="padding: 16px;">VAI TRÒ</th>
+                                    <th style="padding: 16px;">SỐ ĐIỆN THOẠI</th>
+                                    <th style="padding: 16px;">NGÀY THAM GIA</th>
+                                    <th style="padding: 16px;">TRẠNG THÁI</th>
+                                    <th style="padding: 16px;">THAO TÁC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for u in users %}
+                                <tr style="border-bottom: 1px solid var(--border-color);">
+                                    <td style="padding: 16px;">
+                                        <div style="font-weight: 600; color: var(--text-main);">{{ u.full_name }}</div>
+                                        <div style="font-size: 12px; color: var(--text-muted);">{{ u.email }}</div>
+                                    </td>
+                                    <td style="padding: 16px;">
+                                        {% if u.role == 'admin' %}
+                                        <span style="background: var(--purple-light); color: var(--purple); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">Quản trị viên</span>
+                                        {% elif u.role == 'seller' %}
+                                        <span style="background: var(--blue-light); color: var(--primary-blue); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">Showroom</span>
+                                        {% else %}
+                                        <span style="background: var(--gray-light); color: var(--text-muted); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">Khách hàng</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="padding: 16px; font-size: 14px;">{{ u.phone or 'Chưa cập nhật' }}</td>
+                                    <td style="padding: 16px; font-size: 14px; color: var(--text-muted);">{{ u.created_at.strftime('%d/%m/%Y') }}</td>
+                                    <td style="padding: 16px;">
+                                        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--green);">
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green);"></span> Hoạt động
+                                        </span>
+                                    </td>
+                                    <td style="padding: 16px;">
+                                        <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;">Sửa</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxDrive AI - Cấu Hình Hệ Thống</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        .settings-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 32px;
+            margin-top: 24px;
+        }
+        
+        .settings-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 100px;
+        }
+
+        .settings-menu-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #475569;
+            font-weight: 500;
+            font-size: 14.5px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .settings-menu-item i {
+            font-size: 18px;
+            width: 22px;
+            text-align: center;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .settings-menu-item.active {
+            background-color: #EEF2FF;
+            color: #4F46E5;
+            font-weight: 600;
+        }
+
+        .settings-menu-item.active i {
+            color: #4F46E5;
+        }
+
+        .settings-menu-item:hover:not(.active) {
+            background-color: #F8FAFC;
+            color: #0f172a;
+        }
+
+        .settings-menu-item:hover:not(.active) i {
+            color: #0f172a;
+        }
+
+        .settings-content-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .settings-card-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-card-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .settings-card-header p {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary-blue);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--primary-blue);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        .save-bar {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        {% include 'admin_sidebar.html' %}
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm cài đặt...">
+                </div>
+                
+                <div class="topbar-actions">
+                    <div class="status-badge"><span class="status-dot green"></span> System Healthy</div>
+                    <a href="{{ url_for('listing.car_listings') }}" class="btn btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-up-right-from-square"></i> Xem sàn xe</a>
+                    <a href="#" onclick="alert('Chưa có thông báo mới'); return false;" class="action-icon notification" style="text-decoration: none; color: inherit;">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </a>
+                    <a href="{{ url_for('admin.settings') }}" class="action-icon" style="text-decoration: none; color: inherit;" title="Cài đặt">
+                        <i class="fa-solid fa-gear"></i>
+                    </a>
+                    <div class="user-profile">
+                        <img src="https://i.pravatar.cc/150?img=11" alt="User Avatar">
+                        <div class="user-info">
+                            <div class="user-name">Nguyễn Văn Admin</div>
+                            <div class="user-role">Super Admin</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Cấu Hình Hệ Thống</h1>
+                        <p class="subtitle">Tùy chỉnh thông số cốt lõi, tích hợp API, mô hình AI và cổng thanh toán.</p>
+                    </div>
+                </div>
+
+                <div class="settings-container">
+                    <!-- Left Sidebar for Settings -->
+                    <div>
+                        <div class="settings-menu">
+                            <div class="settings-menu-item active" data-target="block-general">
+                                <i class="fa-solid fa-sliders"></i> Thông Số Chung
+                            </div>
+                            <div class="settings-menu-item" data-target="block-ai">
+                                <i class="fa-solid fa-brain"></i> Tham Số AI & Định Giá
+                            </div>
+                            <div class="settings-menu-item" data-target="block-payment">
+                                <i class="fa-solid fa-money-check-dollar"></i> Cổng Thanh Toán
+                            </div>
+                            <div class="settings-menu-item" data-target="block-email">
+                                <i class="fa-solid fa-envelope-open-text"></i> Email & SMS API
+                            </div>
+                            <div class="settings-menu-item" data-target="block-security">
+                                <i class="fa-solid fa-shield-halved"></i> Bảo Mật & Phân Quyền
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Content Area -->
+                    <div>
+                        <form action="#" method="POST">
+                            <!-- Block 1: Chung -->
+                            <div class="settings-content-card" id="block-general">
+                                <div class="settings-card-header">
+                                    <h2>Thông Số Chung</h2>
+                                    <p>Các cài đặt cơ bản của nền tảng LuxDrive.AI</p>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Tên Ứng Dụng</label>
+                                        <input type="text" value="LuxDrive AI Enterprise">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ngôn Ngữ Mặc Định</label>
+                                        <select>
+                                            <option value="vi">Tiếng Việt (vi-VN)</option>
+                                            <option value="en">English (en-US)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Đường Dẫn Base URL</label>
+                                    <input type="text" value="https://app.luxdrive.ai">
+                                </div>
+                                <div class="form-group">
+                                    <div class="toggle-switch">
+                                        <label class="switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 14px;">Bảo trì hệ thống</div>
+                                            <div style="font-size: 12px; color: var(--text-muted);">Tắt truy cập của người dùng (Chỉ Admin mới có thể đăng nhập)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Block 2: AI -->
+                            <div class="settings-content-card" id="block-ai" style="display: none;">
+                                <div class="settings-card-header">
+                                    <h2>Tham Số AI & Định Giá</h2>
+                                    <p>Quy tắc kiểm duyệt tự động dựa trên độ tin cậy của AI</p>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Ngưỡng Tự Động Duyệt (Auto-Approve)</label>
+                                        <div style="position: relative;">
+                                            <input type="number" value="95" style="padding-right: 40px;">
+                                            <span style="position: absolute; right: 14px; top: 10px; color: var(--text-muted);">%</span>
+                                        </div>
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Hồ sơ có độ chính xác AI trên mức này sẽ tự động lên sàn</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Giới Hạn Lệch Giá Đề Xuất so với AI</label>
+                                        <div style="position: relative;">
+                                            <input type="number" value="15" style="padding-right: 40px;">
+                                            <span style="position: absolute; right: 14px; top: 10px; color: var(--text-muted);">%</span>
+                                        </div>
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Khoảng chênh lệch cho phép giữa giá người bán và giá AI tính toán</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Model Định Giá (Inference Endpoint)</label>
+                                    <input type="text" value="grpc://cluster-ai.luxdrive.local:50051/xgboost_v4">
+                                </div>
+                            </div>
+                            
+                            <!-- Block 3: Payment -->
+                            <div class="settings-content-card" id="block-payment" style="display: none;">
+                                <div class="settings-card-header">
+                                    <h2>Cổng Thanh Toán VNPAY</h2>
+                                    <p>Tích hợp nạp tiền quỹ định giá và thanh toán tin VIP</p>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>VNPAY Terminal ID (vnp_TmnCode)</label>
+                                        <input type="text" value="LUXDRV01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Môi Trường</label>
+                                        <select>
+                                            <option value="sandbox">Sandbox (Thử nghiệm)</option>
+                                            <option value="production">Production (Thực tế)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>VNPAY Hash Secret</label>
+                                    <input type="password" value="********************************">
+                                </div>
+                            </div>
+                            
+                            <!-- Block 4: Email & SMS -->
+                            <div class="settings-content-card" id="block-email" style="display: none;">
+                                <div class="settings-card-header">
+                                    <h2>Email & SMS API</h2>
+                                    <p>Cấu hình SMTP để gửi thông báo và mã OTP</p>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>SMTP Host</label>
+                                        <input type="text" value="smtp.sendgrid.net">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>SMTP Port</label>
+                                        <input type="number" value="587">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>SMTP Username</label>
+                                        <input type="text" value="apikey">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>SMTP Password</label>
+                                        <input type="password" value="************************">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Zalo ZNS / Twilio SMS API Key</label>
+                                    <input type="password" value="************************">
+                                </div>
+                            </div>
+
+                            <!-- Block 5: Security -->
+                            <div class="settings-content-card" id="block-security" style="display: none;">
+                                <div class="settings-card-header">
+                                    <h2>Bảo Mật & Phân Quyền</h2>
+                                    <p>Cấu hình xác thực người dùng và bảo mật phiên làm việc</p>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Thời gian hết hạn Session (Phút)</label>
+                                        <input type="number" value="120">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Giới hạn đăng nhập sai (Brute-force)</label>
+                                        <input type="number" value="5">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="toggle-switch">
+                                        <label class="switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 14px;">Bắt buộc 2FA cho Admin</div>
+                                            <div style="font-size: 12px; color: var(--text-muted);">Yêu cầu nhập mã xác thực OTP qua ứng dụng Authenticator khi đăng nhập vào Portal</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-top: 16px;">
+                                    <div class="toggle-switch">
+                                        <label class="switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 14px;">Chặn truy cập API từ bên ngoài</div>
+                                            <div style="font-size: 12px; color: var(--text-muted);">Kích hoạt CORS strict mode để ngăn chặn tấn công giả mạo yêu cầu chéo trang (CSRF)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                            
+                            <!-- Save Bar moved outside of individual cards -->
+                            <div class="save-bar" style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border-color); margin-top: 0; border-top: none;">
+                                <button type="button" class="btn btn-outline" style="margin-right: 12px;">Hủy thay đổi</button>
+                                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Lưu Cấu Hình</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuItems = document.querySelectorAll('.settings-menu-item');
+            const contentCards = document.querySelectorAll('.settings-content-card');
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all menu items
+                    menuItems.forEach(mi => mi.classList.remove('active'));
+                    // Add active class to the clicked menu item
+                    this.classList.add('active');
+
+                    // Hide all content cards
+                    contentCards.forEach(card => card.style.display = 'none');
+                    
+                    // Show the targeted content card
+                    const targetId = this.getAttribute('data-target');
+                    if (targetId) {
+                        document.getElementById(targetId).style.display = 'block';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

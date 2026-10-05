@@ -313,6 +313,9 @@
     <div class="vp-card price-result-card">
       <div class="price-result-header">GIÁ TRỊ ĐỊNH GIÁ AI TARGET PRICING™</div>
       <div class="price-result-main" id="resultPrice">1.420.000.000 ₫</div>
+      <div style="font-size: 13px; color: rgba(255, 255, 255, 0.6); margin-bottom: 12px; text-align: center;">
+        Giá niêm yết xe mới (tham khảo): <strong id="basePriceText" style="color: #fff">1.450.000.000 ₫</strong>
+      </div>
 
       <div class="market-pos-row" id="marketPosRow">
         <span class="pos-dot pos-ok"></span>
@@ -462,28 +465,12 @@
         <table class="vp-table">
           <thead>
             <tr>
-              <th>Xe</th><th>Đời</th><th>KM</th><th>Giá</th><th>Chênh lệch</th>
+              <th>STT</th><th>Hãng xe</th><th>Model</th><th>Năm</th><th>Số km</th><th>Giá niêm yết</th><th>Giá AI dự đoán</th>
             </tr>
           </thead>
           <tbody id="similarCarsTable">
             <tr class="active-row">
-              <td><b id="compMainName">Mercedes-Benz C300</b> <span class="tag-ours">Đang định giá</span></td>
-              <td id="compYear">2022</td>
-              <td id="compODO">32.500</td>
-              <td id="compPrice">1.42B</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>Mercedes C300 AMG</td><td>2021</td><td>42.000</td><td>1.39B</td>
-              <td class="neg">-2.0%</td>
-            </tr>
-            <tr>
-              <td>BMW 330i M-Sport</td><td>2022</td><td>31.000</td><td>1.48B</td>
-              <td class="pos-green">+4.2%</td>
-            </tr>
-            <tr>
-              <td>Audi A4 45 TFSI Q</td><td>2022</td><td>38.500</td><td>1.39B</td>
-              <td class="neg">-2.1%</td>
+              <td colspan="7" style="text-align:center;color:#6b7280;font-style:italic;">Đang chờ AI phân tích dữ liệu...</td>
             </tr>
           </tbody>
         </table>
@@ -731,10 +718,6 @@ function renderResult(data, payload) {
 
   // Car Info
   document.getElementById('resTitle').textContent = payload.brand + ' ' + payload.model;
-  document.getElementById('compMainName').textContent = payload.brand + ' ' + payload.model + ' (Xe của bạn)';
-  document.getElementById('compYear').textContent = payload.year;
-  document.getElementById('compODO').textContent = payload.mileage.toLocaleString();
-  document.getElementById('compPrice').textContent = fmtBillion(price) + 'B';
 
   const originShort = payload.origin.replace(' (Biển.*)', '').split('(')[0].trim();
   document.getElementById('resSubTags').innerHTML =
@@ -762,6 +745,9 @@ function renderResult(data, payload) {
 
   // Price
   document.getElementById('resultPrice').innerHTML = data.price_formatted + ' ₫';
+  if (data.base_price_formatted) {
+    document.getElementById('basePriceText').textContent = data.base_price_formatted;
+  }
   document.getElementById('confidenceBadge').textContent = 'Độ tin cậy ' + data.confidence + '%';
 
   // Range
@@ -832,6 +818,25 @@ function renderResult(data, payload) {
   // Depreciation Rate
   const depRate = 7 + (price > 3e9 ? 2 : price > 1e9 ? 1 : 0) + (payload.accident_history ? 1.5 : 0);
   document.getElementById('depRate').textContent = '-' + depRate.toFixed(1) + '% / năm';
+
+  // Similar Cars
+  if (data.similar_cars && data.similar_cars.length > 0) {
+    let similarHtml = '';
+    data.similar_cars.forEach(car => {
+      similarHtml += `<tr>
+        <td>${car.stt}</td>
+        <td>${car.brand}</td>
+        <td>${car.model}</td>
+        <td>${car.year}</td>
+        <td>${car.mileage}</td>
+        <td>${car.listed_price}</td>
+        <td><b style="color:var(--primary)">${car.ai_price}</b></td>
+      </tr>`;
+    });
+    document.getElementById('similarCarsTable').innerHTML = similarHtml;
+  } else {
+    document.getElementById('similarCarsTable').innerHTML = `<tr><td colspan="7" style="text-align:center;color:#6b7280;font-style:italic;">Không tìm thấy dữ liệu xe tương tự trên thị trường.</td></tr>`;
+  }
 
   // Charts
   initCharts(price / 1e9, payload.year);

@@ -1,128 +1,236 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}LuxDrive Admin{% endblock %}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-{% block extra_css %}{% endblock %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxDrive AI - Quản trị</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
-<body class="admin-body">
+<body>
+    <!-- Toast Container -->
+    <div id="toastContainer" style="position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
 
-<div class="admin-layout">
-  <!-- Sidebar -->
-  <aside class="admin-sidebar">
-    <div class="sidebar-brand">
-      <a href="{{ url_for('admin.dashboard') }}" style="text-decoration:none">
-        <span class="brand-logo" style="font-size:18px">LuxDrive<span style="color:var(--primary)">.</span>AI</span>
-      </a>
-      <span class="brand-sub" style="font-size:10px;font-weight:700;color:var(--primary);margin-left:8px;padding:2px 6px;background:rgba(79,70,229,0.1);border-radius:4px">PORTAL QUẢN TRỊ</span>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo" style="font-size: 24px; font-weight: 900; letter-spacing: -0.05em; color: var(--text-main);">
+                    <span>LuxDrive<span style="color: var(--primary-blue);">.</span>AI</span>
+                </div>
+                <div class="subtitle">ENTERPRISE ENGINE</div>
+            </div>
+            
+            <div class="sidebar-nav-title">PORTAL QUẢN TRỊ</div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-item {{ 'active' if active_nav == 'admin' else '' }}">
+                    <i class="fa-solid fa-layer-group"></i> Tổng quan hệ thống
+                </a>
+                <a href="{{ url_for('admin.moderation') }}" class="nav-item {{ 'active' if active_nav == 'moderation' else '' }}">
+                    <i class="fa-solid fa-check-double"></i> Kiểm duyệt & Định giá AI
+                </a>
+                <a href="{{ url_for('admin.users') }}" class="nav-item {{ 'active' if active_nav == 'users' else '' }}">
+                    <i class="fa-solid fa-users"></i> Người dùng & Showroom
+                </a>
+                <a href="{{ url_for('admin.monitoring') }}" class="nav-item {{ 'active' if active_nav == 'monitoring' else '' }}">
+                    <i class="fa-solid fa-microchip"></i> Giám sát mô hình AI
+                </a>
+                <a href="{{ url_for('admin.reports') }}" class="nav-item {{ 'active' if active_nav == 'reports' else '' }}">
+                    <i class="fa-solid fa-chart-line"></i> Báo cáo & Doanh thu
+                </a>
+                <a href="{{ url_for('admin.settings') }}" class="nav-item {{ 'active' if active_nav == 'settings' else '' }}">
+                    <i class="fa-solid fa-gear"></i> Cấu hình hệ thống
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="cluster-status">
+                    <div class="cluster-title">Cluster: AP-SE-1 <span class="status-dot"></span></div>
+                    <div class="cluster-desc">Tải tính toán: 24.8% • ms: 112ms</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm hồ sơ xe, mã VIN, người dùng, showroom...">
+                </div>
+                
+                <div class="topbar-actions">
+                    <div class="status-badge"><span class="status-dot green"></span> Neural v4.0 Active</div>
+                    <a href="{{ url_for('listing.car_listings') }}" target="_blank" class="btn btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-up-right-from-square"></i> Xem sàn xe</a>
+                    
+                    <div class="notif-wrap" style="position: relative;">
+                        <a href="#" id="notifBtn" onclick="toggleNotif(event)" class="action-icon notification" style="text-decoration: none; color: inherit;">
+                            <i class="fa-regular fa-bell"></i>
+                            <span class="badge" id="notifBadge" style="display:none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white;">0</span>
+                        </a>
+                        <div class="notif-dropdown" id="notifDropdown" style="display: none; position: absolute; right: 0; top: calc(100% + 10px); width: 320px; background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; overflow: hidden;">
+                            <div class="notif-header" style="display: flex; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #e5e7eb; align-items: center; background: #f8fafc;">
+                                <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #1e293b;">Thông báo</h4>
+                                <button onclick="markAllRead()" style="background: none; border: none; color: #3b82f6; font-size: 12px; font-weight: 500; cursor: pointer; padding: 0;">Đánh dấu đã đọc</button>
+                            </div>
+                            <div class="notif-list" id="notifList" style="max-height: 350px; overflow-y: auto;">
+                                <div style="padding: 16px; text-align: center; color: #64748b; font-size: 13px;">Đang tải...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('admin.settings') }}" class="action-icon" style="text-decoration: none; color: inherit;" title="Cài đặt">
+                        <i class="fa-solid fa-gear"></i>
+                    </a>
+                    
+                    <div class="user-account-menu" style="position: relative;">
+                        <div class="user-profile" style="cursor: pointer;" onclick="toggleUserDropdown(event)">
+                            <img src="{{ current_user.avatar_url if current_user.is_authenticated else 'https://i.pravatar.cc/150?img=11' }}" alt="User Avatar">
+                            <div class="user-info">
+                                <div class="user-name">{{ current_user.full_name if current_user.is_authenticated else 'Nguyễn Văn Admin' }}</div>
+                                <div class="user-role">{{ 'Super Admin' if current_user.is_authenticated and current_user.role == 'admin' else 'Quản trị viên' }}</div>
+                            </div>
+                        </div>
+                        <div id="userDropdown" style="display: none; position: absolute; right: 0; top: calc(100% + 10px); width: 220px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; padding: 8px 0;">
+                            <a href="{{ url_for('profile.profile') }}" style="display: block; padding: 10px 20px; color: #1e293b; text-decoration: none; font-size: 14px; transition: background 0.2s;"><i class="fa-regular fa-user" style="margin-right: 8px; width: 16px;"></i> Hồ sơ cá nhân</a>
+                            <a href="{{ url_for('main.index') }}" style="display: block; padding: 10px 20px; color: #1e293b; text-decoration: none; font-size: 14px; transition: background 0.2s;"><i class="fa-solid fa-house" style="margin-right: 8px; width: 16px;"></i> Trang chủ</a>
+                            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 8px 0;">
+                            <a href="{{ url_for('auth.logout') }}" style="display: block; padding: 10px 20px; color: #ef4444; text-decoration: none; font-size: 14px; transition: background 0.2s;"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px; width: 16px;"></i> Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-body">
+                {% block content %}{% endblock %}
+
+                <footer class="main-footer">
+                    <div>LuxDrive AI v4.0.2 Enterprise <span class="dot-separator">•</span> <span class="text-blue"><span class="dot blue"></span> Máy chủ: Đang hoạt động bình thường (99.98% SLA)</span></div>
+                    <div>© 2024 LuxDrive AI Platform. All rights reserved.</div>
+                </footer>
+            </div>
+        </main>
     </div>
-    
-    <div class="sidebar-menu-title">HỆ THỐNG QUẢN TRỊ</div>
-    <ul class="sidebar-menu">
-      <li>
-        <a href="{{ url_for('admin.dashboard') }}" class="active">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          Tổng quan hệ thống
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          Kiểm duyệt & Định giá AI
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Người dùng & Showroom
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M12 12l8.5-4.5"/><path d="M12 12l-8.5-4.5"/></svg>
-          Giám sát mô hình AI
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          Báo cáo & Doanh thu
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          Cấu hình hệ thống
-        </a>
-      </li>
-    </ul>
 
-    <div class="sidebar-bottom">
-      <div class="cluster-badge" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:auto">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-          <span class="pulse-dot" style="background:var(--primary);width:8px;height:8px"></span>
-          <span style="font-size:12px;font-weight:700;color:var(--text)">Cluster AP-SE-1</span>
-        </div>
-        <div style="font-size:11px;color:var(--muted)">Tải tính toán: 24.8% • ms: 112ms</div>
-      </div>
-    </div>
-  </aside>
+    <!-- SocketIO + Notification Scripts -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const IS_AUTH = {{ 'true' if current_user.is_authenticated else 'false' }};
+        const USER_ID = {{ current_user.id if current_user.is_authenticated else 'null' }};
 
-  <!-- Main Content -->
-  <main class="admin-main">
-    <!-- Topbar -->
-    <header class="admin-topbar">
-      <div class="topbar-search">
-        <svg width="16" height="16" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" placeholder="Tìm kiếm hồ sơ xe, mã VIN, người dùng, showroom...">
-      </div>
-      
-      <div class="topbar-actions">
-        <div class="ai-node-badge" style="display:flex;align-items:center;gap:6px;background:rgba(16,185,129,0.1);color:var(--green);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700">
-          <span class="pulse-dot" style="background:var(--green);width:6px;height:6px"></span> Neural v4.8 Active
-        </div>
-        <a href="{{ url_for('main.index') }}" class="topbar-btn" target="_blank" style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text);text-decoration:none;padding:6px 12px;border:1px solid var(--border);border-radius:8px">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Xem sàn xe
-        </a>
-        <button class="topbar-icon-btn notif" style="position:relative;background:transparent;border:none;color:var(--muted);cursor:pointer;padding:8px">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span class="notif-badge" style="position:absolute;top:4px;right:4px;background:var(--red);color:#fff;font-size:9px;font-weight:800;width:14px;height:14px;display:flex;align-items:center;justify-content:center;border-radius:50%">3</span>
-        </button>
-        <button class="topbar-icon-btn" onclick="document.documentElement.classList.toggle('dark-theme')" style="background:transparent;border:none;color:var(--muted);cursor:pointer;padding:8px">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        </button>
-        
-        <div class="topbar-user" style="display:flex;align-items:center;gap:10px;border-left:1px solid var(--border);padding-left:16px;margin-left:8px">
-          <img src="{{ current_user.avatar_url }}" alt="Avatar" onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff'" style="width:32px;height:32px;border-radius:50%">
-          <div class="user-info" style="text-align:left">
-            <div class="user-name" style="font-size:13px;font-weight:700;color:var(--text)">{{ current_user.full_name }}</div>
-            <div class="user-role" style="font-size:11px;color:var(--muted)">Super Admin</div>
-          </div>
-        </div>
-      </div>
-    </header>
+        // Toast Helper
+        function showToast(title, message, type='info') {
+            const icons = { success:'✅', warning:'⚠️', error:'❌', info:'ℹ️' };
+            const el = document.createElement('div');
+            el.style.cssText = 'background: white; border-radius: 8px; padding: 12px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; gap: 12px; align-items: flex-start; max-width: 300px; border-left: 4px solid ' + (type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6');
+            el.innerHTML = `<span style="font-size: 18px;">${icons[type]||'🔔'}</span><div><p style="margin: 0 0 4px; font-weight: 600; font-size: 14px; color: #1e293b;">${title}</p><p style="margin: 0; font-size: 13px; color: #475569;">${message}</p></div>`;
+            document.getElementById('toastContainer').prepend(el);
+            setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 5000);
+        }
 
-    <!-- Page Content -->
-    <div class="admin-content-scroll">
-      {% block content %}{% endblock %}
-      
-      <div class="admin-footer-text" style="display:flex;align-items:center;padding:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--border);margin-top:40px">
-        <span>LuxDrive AI v4.8.2 Enterprise</span>
-        <span style="margin:0 12px">•</span>
-        <span>Máy chủ: Đang hoạt động bình thường (99.98% SLA)</span>
-        <span style="margin-left:auto">© 2024 LuxDrive AI Platform. All rights reserved.</span>
-      </div>
-    </div>
-  </main>
-</div>
+        // Dropdowns Toggle
+        function toggleNotif(e) {
+            if(e) e.preventDefault();
+            const dd = document.getElementById('notifDropdown');
+            const ud = document.getElementById('userDropdown');
+            if (ud) ud.style.display = 'none'; // close user dd
+            
+            if (dd.style.display === 'none') {
+                dd.style.display = 'block';
+                loadNotifications();
+            } else {
+                dd.style.display = 'none';
+            }
+        }
 
-{% block extra_js %}{% endblock %}
+        function toggleUserDropdown(e) {
+            if(e) e.preventDefault();
+            const ud = document.getElementById('userDropdown');
+            const dd = document.getElementById('notifDropdown');
+            if (dd) dd.style.display = 'none'; // close notif dd
+
+            if (ud.style.display === 'none') {
+                ud.style.display = 'block';
+            } else {
+                ud.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.notif-wrap')) {
+                const dd = document.getElementById('notifDropdown');
+                if(dd) dd.style.display = 'none';
+            }
+            if (!e.target.closest('.user-account-menu')) {
+                const ud = document.getElementById('userDropdown');
+                if(ud) ud.style.display = 'none';
+            }
+        });
+
+        // Fetch Notifications
+        async function loadNotifications() {
+            if (!IS_AUTH) return;
+            try {
+                const res = await fetch('/api/notifications');
+                if (!res.ok) return;
+                const data = await res.json();
+                const list = document.getElementById('notifList');
+                const badge = document.getElementById('notifBadge');
+                
+                const unread = data.filter(n => !n.is_read).length;
+                badge.textContent = unread > 9 ? '9+' : unread;
+                badge.style.display = unread > 0 ? 'flex' : 'none';
+                
+                if (data.length === 0) {
+                    list.innerHTML = '<div style="padding: 16px; text-align: center; color: #64748b; font-size: 13px;">Không có thông báo nào.</div>';
+                    return;
+                }
+                
+                list.innerHTML = data.map(n => `
+                    <div class="notif-item ${n.is_read ? '' : 'unread'}" onclick="markRead(${n.id}, this)" style="padding: 12px 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s; ${n.is_read ? 'opacity: 0.7;' : 'background: #eff6ff;'}">
+                        <div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">${n.title}</div>
+                        <div style="font-size: 12px; color: #475569; line-height: 1.4;">${n.message}</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">${n.time_ago}</div>
+                    </div>
+                `).join('');
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function markRead(id, el) {
+            try {
+                await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
+                if(el) {
+                    el.style.background = 'transparent';
+                    el.style.opacity = '0.7';
+                }
+                loadNotifications();
+            } catch(e) { console.error(e); }
+        }
+
+        async function markAllRead() {
+            try {
+                await fetch('/api/notifications/read-all', { method: 'PATCH' });
+                loadNotifications();
+            } catch(e) { console.error(e); }
+        }
+
+        // Initialize Real-time Socket & Initial Load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (IS_AUTH && USER_ID) {
+                const socket = io();
+                socket.on('connect', () => socket.emit('join', { user_id: USER_ID }));
+                socket.on('new_notification', data => {
+                    showToast(data.title, data.message, data.type || 'info');
+                    loadNotifications();
+                });
+            }
+            loadNotifications();
+        });
+    </script>
 </body>
 </html>

@@ -38,6 +38,7 @@ def get_years():
 @login_required
 def predict():
     """API: Dự đoán giá xe bằng ML model thật"""
+    from models.vehicle import Vehicle
     data = request.get_json()
     brand        = data.get('brand', 'Porsche')
     model        = data.get('model', '911 Carrera S')
@@ -52,9 +53,10 @@ def predict():
     condition    = data.get('overall_condition', 'Tốt')
     origin       = data.get('origin', 'Hà Nội')
     
+    from services.valuation_service import ValuationService, POPULAR_CAR_MSRP
+    
     popular_brands = ['Toyota', 'Honda', 'Mazda', 'Hyundai', 'Kia', 'Ford', 'VinFast']
     if brand in popular_brands:
-        from services.valuation_service import ValuationService
         result = ValuationService.calculate_market_value(
             brand, model, year, mileage,
             accident_history=accident,
@@ -73,4 +75,23 @@ def predict():
             overall_condition=condition
         )
         
+    # Inject MSRP / Base Price
+    brand_data = POPULAR_CAR_MSRP.get(brand, {})
+    base_price = brand_data.get(model, 800_000_000)
+    result['base_price_formatted'] = f"{int(base_price):,} đ".replace(',', '.')
+        
+    similar_cars_query = Vehicle.query.filter_by(brand=brand, model=model).limit(5).all()
+    similar_cars_data = []
+    for i, car in enumerate(similar_cars_query, 1):
+        similar_cars_data.append({
+            'stt': i,
+            'brand': car.brand,
+            'model': car.model,
+            'year': car.year,
+            'mileage': f"{car.mileage:,}",
+            'listed_price': f"{int(car.price / 1_000_000):,} tr",
+            'ai_price': f"{int((car.ai_price or car.price * 0.97) / 1_000_000):,} tr" 
+        })
+    result['similar_cars'] = similar_cars_data
+    
     return jsonify(result)

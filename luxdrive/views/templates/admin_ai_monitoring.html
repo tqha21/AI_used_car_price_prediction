@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxDrive AI - Giám Sát Mô Hình AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        .ai-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .ai-metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+        .ai-metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .ai-metric-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .ai-metric-val {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .ai-status-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        {% include 'admin_sidebar.html' %}
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Tra cứu log mô hình AI, version...">
+                </div>
+                
+                <div class="topbar-actions">
+                    <div class="status-badge"><span class="status-dot green"></span> System Healthy</div>
+                    <div class="user-profile">
+                        <img src="https://i.pravatar.cc/150?img=11" alt="User Avatar">
+                        <div class="user-info">
+                            <div class="user-name">Nguyễn Văn Admin</div>
+                            <div class="user-role">Super Admin</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+                <div class="dashboard-header">
+                    <div>
+                        <div class="tag-live"><span class="status-dot blink"></span> CLUSTER ĐANG HOẠT ĐỘNG</div>
+                        <h1>Giám Sát Mô Hình AI</h1>
+                        <p class="subtitle">Theo dõi độ trễ, độ chính xác (Accuracy), và tình trạng các dịch vụ Machine Learning của hệ thống.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary"><i class="fa-solid fa-rotate"></i> Retrain Model (Scheduled)</button>
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="ai-metrics-grid">
+                    <div class="ai-metric-card">
+                        <div class="ai-metric-header">
+                            <span class="ai-metric-title">Price Prediction Model</span>
+                            <div class="icon blue-light" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--primary-blue);"><i class="fa-solid fa-brain"></i></div>
+                        </div>
+                        <div class="ai-metric-val">98.6%</div>
+                        <div style="font-size: 13px; color: var(--green); margin-top: 8px; font-weight: 500;"><i class="fa-solid fa-arrow-up"></i> Tăng 0.4% so với v3.0</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Độ chính xác MAE: ±12 triệu VNĐ</div>
+                    </div>
+
+                    <div class="ai-metric-card">
+                        <div class="ai-metric-header">
+                            <span class="ai-metric-title">ODO Fraud Detection</span>
+                            <div class="icon purple-light" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--purple);"><i class="fa-solid fa-gauge-high"></i></div>
+                        </div>
+                        <div class="ai-metric-val">94.2%</div>
+                        <div style="font-size: 13px; color: var(--green); margin-top: 8px; font-weight: 500;"><i class="fa-solid fa-check-double"></i> F1-Score đạt chuẩn</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Phát hiện thành công 18 vụ tua ODO tuần này</div>
+                    </div>
+
+                    <div class="ai-metric-card">
+                        <div class="ai-metric-header">
+                            <span class="ai-metric-title">API Latency (Trung bình)</span>
+                            <div class="icon cyan-light" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--cyan);"><i class="fa-solid fa-stopwatch"></i></div>
+                        </div>
+                        <div class="ai-metric-val">112ms</div>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 8px; font-weight: 500;">P99 Latency: 254ms</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Cluster: AP-Southeast-1 (Hanoi)</div>
+                    </div>
+                </div>
+
+                <!-- Cluster Status -->
+                <div class="ai-status-container">
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <div class="title-with-icon">
+                                <div>
+                                    <h2>Tình trạng Microservices</h2>
+                                    <p>Các pipeline đang chạy trên nền tảng Kubernetes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="algorithms-grid">
+                            <div class="algo-item" style="border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                                <div class="algo-header" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                    <span class="name" style="font-weight:600;">Computer Vision OCR</span>
+                                    <span class="badge dark" style="background:var(--green); color:white; padding:2px 8px; border-radius:4px; font-size:11px;">Hoạt động</span>
+                                </div>
+                                <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">Bóc tách đăng kiểm & mã định danh VIN qua ảnh chụp.</p>
+                                <div class="latency" style="font-size:12px;">Độ trễ: <strong>42ms</strong> | RAM: 1.2GB</div>
+                            </div>
+                            
+                            <div class="algo-item" style="border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                                <div class="algo-header" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                    <span class="name" style="font-weight:600;">Price Gradient Boost v4.0</span>
+                                    <span class="badge dark" style="background:var(--green); color:white; padding:2px 8px; border-radius:4px; font-size:11px;">Hoạt động</span>
+                                </div>
+                                <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">Mô hình XGBoost định giá xe thời gian thực.</p>
+                                <div class="latency" style="font-size:12px;">Độ trễ: <strong>120ms</strong> | RAM: 3.4GB</div>
+                            </div>
+                            
+                            <div class="algo-item" style="border: 1px solid var(--border-color); padding: 16px; border-radius: 8px;">
+                                <div class="algo-header" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                    <span class="name" style="font-weight:600;">Image Quality & Damage detection</span>
+                                    <span class="badge dark" style="background:var(--purple); color:white; padding:2px 8px; border-radius:4px; font-size:11px;">Đang huấn luyện (v5)</span>
+                                </div>
+                                <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">Phân tích vết xước, móp méo qua hình ảnh người dùng tải lên.</p>
+                                <div class="latency" style="font-size:12px;">Độ trễ: <strong>N/A</strong> | GPU Load: 88%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <h2>Nhật ký (Logs)</h2>
+                        </div>
+                        <div style="background:#0f172a; color:#a5b4fc; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 13px; height: 350px; overflow-y: auto;">
+                            <div style="margin-bottom: 8px;">[17:42:01] INFO: Received prediction request for VIN: VF8...</div>
+                            <div style="margin-bottom: 8px;">[17:42:01] DEBUG: Extracted 68 features from payload.</div>
+                            <div style="margin-bottom: 8px;">[17:42:01] INFO: Model XGBoost_v4 inference time: 42ms</div>
+                            <div style="margin-bottom: 8px;">[17:42:01] INFO: Prediction result: 1,020,000,000 VND</div>
+                            <div style="margin-bottom: 8px; color: #fbbf24;">[17:43:15] WARN: ODO mismatch detected on request #8819. AI flagged for manual review.</div>
+                            <div style="margin-bottom: 8px;">[17:44:22] INFO: Retraining job scheduled for 02:00 AM UTC.</div>
+                            <div style="margin-bottom: 8px;">[17:45:00] INFO: Health check passed for AP-SE-1 nodes (3/3).</div>
+                            <div style="margin-bottom: 8px;">[17:45:10] INFO: Model XGBoost_v4 inference time: 45ms</div>
+                            <div style="margin-bottom: 8px;">[17:45:12] INFO: Incoming request rate: 12.4 req/s</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

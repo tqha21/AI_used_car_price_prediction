@@ -11,44 +11,7 @@
 <body>
     <div class="admin-layout">
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fa-solid fa-car-side"></i>
-                    <span>LuxDrive AI</span>
-                </div>
-                <div class="subtitle">ENTERPRISE ENGINE</div>
-            </div>
-            
-            <div class="sidebar-nav-title">PORTAL QUẢN TRỊ</div>
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-item active">
-                    <i class="fa-solid fa-layer-group"></i> Tổng quan hệ thống
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-check-double"></i> Kiểm duyệt & Định giá AI
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-users"></i> Người dùng & Showroom
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-microchip"></i> Giám sát mô hình AI
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-chart-line"></i> Báo cáo & Doanh thu
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-gear"></i> Cấu hình hệ thống
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="cluster-status">
-                    <div class="cluster-title">Cluster: AP-SE-1 <span class="status-dot"></span></div>
-                    <div class="cluster-desc">Tải tính toán: 24.8% • ms: 112ms</div>
-                </div>
-            </div>
-        </aside>
+        {% include 'admin_sidebar.html' %}
 
         <!-- Main Content -->
         <main class="main-content">
@@ -61,7 +24,7 @@
                 
                 <div class="topbar-actions">
                     <div class="status-badge"><span class="status-dot green"></span> Neural v4.0 Active</div>
-                    <button class="btn btn-outline"><i class="fa-solid fa-up-right-from-square"></i> Xem sàn xe</button>
+                    <button class="btn btn-outline" onclick="window.open('{{ url_for('listing.car_listings') }}', '_blank')"><i class="fa-solid fa-up-right-from-square"></i> Xem sàn xe</button>
                     <div class="action-icon notification">
                         <i class="fa-regular fa-bell"></i>
                         <span class="badge">3</span>
@@ -90,14 +53,27 @@
                     </div>
                     <div class="header-actions">
                         <div class="time-filters">
-                            <button class="active">Hôm nay</button>
-                            <button>7 ngày qua</button>
-                            <button>30 ngày qua</button>
-                            <button>Quý này</button>
+                            <a href="{{ url_for('admin.dashboard', time='today', brand=current_brand) }}" class="btn {{ 'active' if current_time_filter == 'today' else '' }}" style="text-decoration:none;">Hôm nay</a>
+                            <a href="{{ url_for('admin.dashboard', time='7days', brand=current_brand) }}" class="btn {{ 'active' if current_time_filter == '7days' else '' }}" style="text-decoration:none;">7 ngày qua</a>
+                            <a href="{{ url_for('admin.dashboard', time='30days', brand=current_brand) }}" class="btn {{ 'active' if current_time_filter == '30days' else '' }}" style="text-decoration:none;">30 ngày qua</a>
+                            <a href="{{ url_for('admin.dashboard', time='all', brand=current_brand) }}" class="btn {{ 'active' if current_time_filter == 'all' or not current_time_filter else '' }}" style="text-decoration:none;">Tất cả</a>
                         </div>
-                        <div class="action-btns">
-                            <button class="btn btn-light"><i class="fa-solid fa-filter"></i> Bộ lọc</button>
-                            <button class="btn btn-primary"><i class="fa-solid fa-file-export"></i> Xuất Báo cáo (PDF/Excel)</button>
+                        <div class="action-btns" style="position:relative;">
+                            <button class="btn btn-light" onclick="document.getElementById('brandFilterForm').classList.toggle('hidden')"><i class="fa-solid fa-filter"></i> Bộ lọc</button>
+                            <a href="{{ url_for('admin.export_report', time=current_time_filter) }}" class="btn btn-primary" style="text-decoration:none;"><i class="fa-solid fa-file-export"></i> Xuất Báo cáo (CSV)</a>
+                            
+                            <!-- Dropdown Filter Form -->
+                            <form id="brandFilterForm" class="hidden" action="{{ url_for('admin.dashboard') }}" method="GET" style="position:absolute; top:45px; left:0; background:white; padding:15px; border-radius:8px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); border:1px solid #e2e8f0; z-index:100; min-width:200px;">
+                                <input type="hidden" name="time" value="{{ current_time_filter }}">
+                                <div style="margin-bottom:10px;">
+                                    <label style="font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px; display:block;">Hãng xe:</label>
+                                    <input type="text" name="brand" value="{{ current_brand }}" placeholder="VD: Toyota" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; outline:none;">
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width:100%; padding:6px; font-size:13px;">Áp dụng</button>
+                                {% if current_brand %}
+                                <a href="{{ url_for('admin.dashboard', time=current_time_filter) }}" style="display:block; text-align:center; margin-top:8px; font-size:12px; color:#ef4444; text-decoration:none;">Xóa lọc</a>
+                                {% endif %}
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -111,9 +87,9 @@
                             <div class="icon blue-light"><i class="fa-solid fa-building-user"></i></div>
                         </div>
                         <div class="kpi-value">
-                            48,250 <span class="trend up"><i class="fa-solid fa-arrow-up"></i> 12.4%</span>
+                            {{ stats[0]['value'] }} <span class="trend up"><i class="fa-solid fa-arrow-up"></i> 12.4%</span>
                         </div>
-                        <div class="kpi-desc">3,420 Showroom đối tác xác thực</div>
+                        <div class="kpi-desc">{{ stats[0]['sub'] }}</div>
                         <div class="kpi-footer-chart">
                             <span>Tỷ lệ hoạt động tuần: 82%</span>
                             <div class="sparkline-placeholder blue"></div>
@@ -127,9 +103,9 @@
                             <div class="icon cyan-light"><i class="fa-solid fa-car"></i></div>
                         </div>
                         <div class="kpi-value">
-                            1,428 <span class="unit">xe</span> <span class="trend up"><i class="fa-solid fa-arrow-up"></i> 5.8%</span>
+                            {{ stats[1]['value'] }} <span class="unit">xe</span> <span class="trend up"><i class="fa-solid fa-arrow-up"></i> 5.8%</span>
                         </div>
-                        <div class="kpi-desc">94.2% đã xác thực 178 hạng mục AI</div>
+                        <div class="kpi-desc">{{ stats[1]['sub'] }}</div>
                         <div class="kpi-footer-status">
                             <span class="status-dot cyan"></span> Đang mở giao dịch <a href="#">Chi tiết sàn <i class="fa-solid fa-arrow-right"></i></a>
                         </div>
@@ -142,9 +118,9 @@
                             <div class="icon red-light"><i class="fa-solid fa-clipboard-list"></i><span class="alert-dot"></span></div>
                         </div>
                         <div class="kpi-value">
-                            38 <span class="badge-vip">12 VIP khẩn</span>
+                            {{ stats[2]['value'] }} <span class="badge-vip">Cần kiểm duyệt</span>
                         </div>
-                        <div class="kpi-desc">Thời gian xử lý trung bình: <strong>4.2 phút</strong></div>
+                        <div class="kpi-desc">{{ stats[2]['sub'] }}</div>
                         <div class="kpi-footer-action">
                             <span>Cần quản trị can thiệp</span>
                             <button class="btn btn-danger-sm">Xử lý ngay</button>
@@ -158,10 +134,10 @@
                             <div class="icon purple-light"><i class="fa-solid fa-wallet"></i></div>
                         </div>
                         <div class="kpi-value">
-                            2.84 <span class="unit">tỷ</span> <span class="trend up-purple"><i class="fa-solid fa-arrow-up"></i> 18.2%</span>
+                            {{ stats[3]['value'] }} <span class="trend up-purple"><i class="fa-solid fa-arrow-up"></i> 18.2%</span>
                         </div>
                         <div class="kpi-currency">₫</div>
-                        <div class="kpi-desc">342 giao dịch & gói thẩm định chuyên sâu</div>
+                        <div class="kpi-desc">{{ stats[3]['sub'] }}</div>
                         <div class="kpi-progress">
                             <div class="progress-info"><span>Mục tiêu Q3:</span> <span>88.5%</span></div>
                             <div class="progress-bar"><div class="progress-fill" style="width: 88.5%"></div></div>
@@ -210,13 +186,13 @@
                             </div>
                             <div class="mock-line">
                                 <svg viewBox="0 0 100 40" preserveAspectRatio="none">
-                                    <path d="M0 30 Q 10 25, 20 20 T 40 10 T 60 15 T 80 5 T 100 2" fill="none" stroke="#2563eb" stroke-width="2"/>
-                                    <circle cx="0" cy="30" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
-                                    <circle cx="20" cy="20" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
-                                    <circle cx="40" cy="10" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
-                                    <circle cx="60" cy="15" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
-                                    <circle cx="80" cy="5" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
-                                    <circle cx="100" cy="2" r="1.5" fill="#fff" stroke="#2563eb" stroke-width="1"/>
+                                    <path d="M0 30 Q 10 25, 20 20 T 40 10 T 60 15 T 80 5 T 100 2" fill="none" stroke="var(--primary-blue)" stroke-width="2"/>
+                                    <circle cx="0" cy="30" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="20" cy="20" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="40" cy="10" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="60" cy="15" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="80" cy="5" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
+                                    <circle cx="100" cy="2" r="1.5" fill="#fff" stroke="var(--primary-blue)" stroke-width="1"/>
                                 </svg>
                             </div>
                             <div class="chart-x-axis">
@@ -303,150 +279,61 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Row 1 -->
+                                {% for p in pending %}
                                 <tr>
                                     <td>
                                         <div class="car-info">
-                                            <img src="https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=100&h=60&fit=crop" alt="C300">
+                                            <img src="{{ p.primary_image }}" alt="{{ p.brand }}">
                                             <div class="car-details">
-                                                <div class="car-name">Mercedes-Benz C300 AMG (2022)</div>
-                                                <div class="car-meta">VIN: WDD206471PA04*** • Biển: 30K-882.19</div>
+                                                <div class="car-name">{{ p.full_name }}</div>
+                                                <div class="car-meta">Odo: {{ p.mileage_formatted }} • Năm: {{ p.year }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="user-cell">
-                                            <div class="name">Auto Luxury Hà Nội</div>
-                                            <div class="role blue"><i class="fa-solid fa-shield-check"></i> Đối tác Kim Cương</div>
+                                            <div class="name">{{ p.owner.full_name if p.owner else 'Thành viên' }}</div>
+                                            <div class="role {{ 'blue' if p.owner and p.owner.role == 'seller' else 'gray' }}">
+                                                {% if p.owner and p.owner.role == 'seller' %}
+                                                <i class="fa-solid fa-shield-check"></i> Đối tác Kim Cương
+                                                {% else %}
+                                                Người dùng
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="price-cell">
-                                            <div class="price">1.390 tỷ ₫</div>
-                                            <div class="ai-target">AI Target: 1.415 tỷ (-1.8%)</div>
+                                            <div class="price">{{ p.price_formatted }}</div>
+                                            <div class="ai-target">AI Target: {{ "{:,.0f}".format(p.ai_price).replace(',', '.') if p.ai_price else 'Đang cập nhật' }} ₫</div>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="status-badge-cell cyan">
-                                            <i class="fa-solid fa-shield"></i> 98.4% • Chuẩn 176 hạng mục
+                                            <i class="fa-solid fa-shield"></i> {{ "%.1f"|format(p.ai_confidence) if p.ai_confidence else "95.0" }}% • Đã kiểm tra
                                         </div>
                                     </td>
-                                    <td><div class="time">8 phút<br>trước</div></td>
+                                    <td><div class="time">{{ p.created_at.strftime('%d/%m %H:%M') }}</div></td>
                                     <td>
-                                        <div class="actions-cell">
-                                            <button class="btn btn-primary-sm">Duyệt ngay</button>
-                                            <button class="btn btn-icon"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        <div class="actions-cell" style="display:flex; gap:8px;">
+                                            <form action="{{ url_for('admin.approve_vehicle', vid=p.id) }}" method="POST" style="margin:0;">
+                                                <button type="submit" class="btn btn-primary-sm">Duyệt ngay</button>
+                                            </form>
+                                            <form action="{{ url_for('admin.reject_vehicle', vid=p.id) }}" method="POST" style="margin:0;">
+                                                <button type="submit" class="btn btn-primary-sm" style="background:#ef4444;border-color:#ef4444;">Từ chối</button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
-                                <!-- Row 2 -->
+                                {% else %}
                                 <tr>
-                                    <td>
-                                        <div class="car-info">
-                                            <img src="https://images.unsplash.com/photo-1503376760367-17257321bb81?w=100&h=60&fit=crop" alt="Macan">
-                                            <div class="car-details">
-                                                <div class="car-name">Porsche Macan GTS (2021) <span class="tag-vip">VIP</span></div>
-                                                <div class="car-meta">VIN: WP1AA2956PLB99*** • Biển: 51K-678.90</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="user-cell">
-                                            <div class="name">Nguyễn Tuấn Kiên</div>
-                                            <div class="role gray">Chính chủ cá nhân (eKYC OK)</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="price-cell">
-                                            <div class="price">3.450 tỷ ₫</div>
-                                            <div class="ai-target">AI Target: 3.420 tỷ (+0.9%)</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="status-badge-cell cyan">
-                                            <i class="fa-solid fa-shield"></i> 99.1% • Sơn zin 98%
-                                        </div>
-                                    </td>
-                                    <td><div class="time">21 phút<br>trước</div></td>
-                                    <td>
-                                        <div class="actions-cell">
-                                            <button class="btn btn-primary-sm">Duyệt ngay</button>
-                                            <button class="btn btn-icon"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                        </div>
+                                    <td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted);">
+                                        <i class="fa-solid fa-check-circle" style="font-size: 32px; color: var(--green); margin-bottom: 12px;"></i>
+                                        <br>
+                                        Không có hồ sơ xe nào đang chờ duyệt.
                                     </td>
                                 </tr>
-                                <!-- Row 3 (Alert) -->
-                                <tr class="alert-row">
-                                    <td>
-                                        <div class="car-info">
-                                            <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=100&h=60&fit=crop" alt="BMW">
-                                            <div class="car-details">
-                                                <div class="car-name">BMW 330i M Sport (2020) <span class="tag-danger">CẢNH BÁO</span></div>
-                                                <div class="car-meta">VIN: WBA5R7C56LF124*** • Biển: 29A-345.12</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="user-cell">
-                                            <div class="name">Minh Phát Auto Sài Gòn</div>
-                                            <div class="role gray">Showroom Tiêu chuẩn</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="price-cell">
-                                            <div class="price red">1.180 tỷ ₫</div>
-                                            <div class="ai-target red">Bất thường định giá (-14%)</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="status-badge-cell red">
-                                            <i class="fa-solid fa-triangle-exclamation"></i> Lệch ODO 28,000km
-                                        </div>
-                                    </td>
-                                    <td><div class="time">35 phút<br>trước</div></td>
-                                    <td>
-                                        <div class="actions-cell">
-                                            <button class="btn btn-danger-outline-sm">Kiểm định lại</button>
-                                            <button class="btn btn-icon"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Row 4 -->
-                                <tr>
-                                    <td>
-                                        <div class="car-info">
-                                            <img src="https://images.unsplash.com/photo-1628277613967-6abca504d0ac?w=100&h=60&fit=crop" alt="Lexus">
-                                            <div class="car-details">
-                                                <div class="car-name">Lexus RX350 AWD (2022)</div>
-                                                <div class="car-meta">VIN: JT2BZRCA8NC158*** • Biển: 43A-559.22</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="user-cell">
-                                            <div class="name">Đà Nẵng Car Center</div>
-                                            <div class="role blue"><i class="fa-solid fa-medal"></i> Đối tác Vàng</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="price-cell">
-                                            <div class="price">3.890 tỷ ₫</div>
-                                            <div class="ai-target">AI Target: 3.880 tỷ (+0.2%)</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="status-badge-cell cyan">
-                                            <i class="fa-solid fa-shield"></i> 97.9% • Hồ sơ lịch sử hãng OK
-                                        </div>
-                                    </td>
-                                    <td><div class="time">54 phút<br>trước</div></td>
-                                    <td>
-                                        <div class="actions-cell">
-                                            <button class="btn btn-primary-sm">Duyệt ngay</button>
-                                            <button class="btn btn-icon"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
